@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
