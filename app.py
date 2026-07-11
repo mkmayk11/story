@@ -14,6 +14,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Cria a pasta automaticamente se não existir
 
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -39,13 +41,9 @@ class Product(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    status = db.Column(db.Integer, default=1)
-    
-    # Relacionamentos para facilitar o acesso
-    user = db.relationship('User', backref='orders')
-    product = db.relationship('Product', backref='orders')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    status = db.Column(db.Integer, default=1) # 1 a 5
 
 STATUS_MAP = {
     1: "Processando seu pagamento",
@@ -115,10 +113,8 @@ def comprar(product_id):
 @app.route('/minhas_compras')
 @login_required
 def minhas_compras():
-    # Busca apenas os pedidos do usuário logado
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
-    status_map = {1: "Pagamento", 2: "Aprovado", 3: "Preparação", 4: "A Caminho", 5: "Entregue"}
-    return render_template('minhas_compras.html', pedidos=pedidos, status_map=status_map)
+    return render_template('compras.html', pedidos=pedidos, status_map=STATUS_MAP)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
@@ -185,21 +181,7 @@ def add_product():
         return redirect(url_for('admin_panel'))
 
     return render_template('add_product.html')
-
-
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    # O PagBank envia dados via JSON
-    dados = request.json
     
-    # Você precisaria extrair o ID do pedido e o novo status
-    # Exemplo (pseudocódigo):
-    # order_id = dados['reference_id']
-    # pedido = Order.query.get(order_id)
-    # pedido.status = 2 # Pagamento feito
-    # db.session.commit()
-    
-    return "OK", 200    
 
 if __name__ == '__main__':
     with app.app_context():
