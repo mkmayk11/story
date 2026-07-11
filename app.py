@@ -121,7 +121,7 @@ def minhas_compras():
     # Busca apenas os pedidos do usuário logado
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
     status_map = {1: "Pagamento", 2: "Aprovado", 3: "Preparação", 4: "A Caminho", 5: "Entregue"}
-    return render_template('minhas_compras.html', pedidos=pedidos, status_map=status_map)
+    return render_template('compras.html', pedidos=pedidos, status_map=status_map)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
