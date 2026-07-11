@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-3xl font-light mb-8 border-b pb-2">Lançamentos</h2>
+
+<!-- Carrossel de Produtos -->
+<div class="flex overflow-x-auto gap-8 pb-8 no-scrollbar snap-x">
+    
+    {% for produto in produtos %}
+    
+    <div class="min-w-[300px] bg-white rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 snap-center overflow-hidden border border-gray-100 flex flex-col">
+        <!-- Pega a primeira imagem da lista (separada por vírgula) -->
+        {% set primeira_foto = produto.imagens.split(',')[0] if produto.imagens else '' %}
+        
+        <div class="h-64 bg-gray-100" style="background-image: url('{{ primeira_foto }}'); background-size: cover; background-position: center;"></div>
+        
+        <div class="p-6 flex flex-col flex-grow">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-xl font-semibold">{{ produto.nome }}</h3>
+                <!-- Exibe o Preço formatado -->
+                <span class="text-lg font-light text-green-700">R$ {{ "%.2f"|format(produto.preco) }}</span>
+            </div>
+            
+            <p class="text-gray-500 text-sm mb-6 flex-grow line-clamp-2">{{ produto.descricao }}</p>
+            
+            {% if current_user.is_authenticated %}
+                <!-- Link atualizado com referrerpolicy e target blank para evitar erro 403 -->
+                <a href="{{ url_for('comprar', product_id=produto.id) }}" 
+                   referrerpolicy="no-referrer" 
+                   target="_blank"
+                   class="block w-full text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider">
+                    Comprar
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="block w-full text-center bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300 transition-colors uppercase text-sm tracking-wider">
+                    Faça login para comprar
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% else %}
+    <p class="text-gray-400">Nenhum produto cadastrado ainda.</p>
+    {% endfor %}
+    <!-- Fim do laço de repetição -->
+
+</div>
+{% endblock %}

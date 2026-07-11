@@ -1,0 +1,54 @@
+
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-3xl font-light mb-8">Painel de Administração</h2>
+    <!-- Adicione este botão logo abaixo do <h2> do admin.html -->
+    <div class="mb-8">
+        <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
+            + Cadastrar Novo Produto
+        </a>
+    </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Gerenciamento de Usuários -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários</h3>
+        <ul class="divide-y">
+            {% for user in usuarios %}
+            <li class="py-3 flex justify-between items-center">
+                <div>
+                    <span class="font-medium">{{ user.username }}</span>
+                    {% if user.is_admin %}<span class="text-xs bg-black text-white px-2 py-1 rounded ml-2">ADMIN</span>{% endif %}
+                </div>
+                {% if user.username != 'admin' %}
+                    <a href="{{ url_for('toggle_role', user_id=user.id) }}" class="text-sm {% if user.is_admin %}text-red-500{% else %}text-blue-500{% endif %} hover:underline">
+                        {% if user.is_admin %}Remover Admin{% else %}Tornar Admin{% endif %}
+                    </a>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Gerenciamento de Pedidos -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Pedidos</h3>
+        <ul class="divide-y">
+            {% for pedido in pedidos %}
+            <li class="py-4">
+                <div class="flex justify-between mb-2">
+                    <span class="font-medium">Pedido #{{ pedido.id }} - Usuário ID: {{ pedido.user_id }}</span>
+                    <span class="text-sm bg-gray-100 px-3 py-1 rounded-full">{{ status_map[pedido.status] }}</span>
+                </div>
+                <div class="flex gap-2 text-xs mt-3">
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border p-1 rounded hover:bg-gray-50">1</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border p-1 rounded hover:bg-gray-50">2</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border p-1 rounded hover:bg-gray-50">3</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border p-1 rounded hover:bg-gray-50">4</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border p-1 rounded hover:bg-gray-50 bg-black text-white">5</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

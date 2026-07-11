@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-light tracking-wide uppercase">Adicionar Novo Produto</h2>
+        <a href="{{ url_for('admin_panel') }}" class="text-sm text-gray-500 hover:text-black">Voltar</a>
+    </div>
+    
+    <!-- enctype é OBRIGATÓRIO para enviar imagens -->
+    <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="space-y-4">
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Nome do Produto</label>
+            <input type="text" name="nome" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">Preço (Ex: 199,90)</label>
+                <input type="text" name="preco" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+            </div>
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">Link de Pagamento (Checkout)</label>
+                <input type="url" name="link_externo" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Descrição</label>
+            <textarea name="descricao" rows="3" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black"></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Fotos do Produto (Pode selecionar várias)</label>
+            <!-- o atributo 'multiple' permite escolher mais de uma foto na janelinha -->
+            <input type="file" name="fotos" multiple accept="image/*" required class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800">
+        </div>
+        
+        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider mt-4">
+            Salvar Produto
+        </button>
+    </form>
+</div>
+{% endblock %}

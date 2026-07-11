@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 mt-20">
+    <h2 class="text-2xl font-light mb-6 text-center tracking-wide uppercase">Acessar Conta</h2>
+    
+    <!-- Mensagens de erro (flash) -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm text-center">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('login') }}" class="space-y-5">
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Nome de Usuário</label>
+            <input type="text" name="username" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors">
+        </div>
+        
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Senha</label>
+            <input type="password" name="password" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-colors">
+        </div>
+        
+        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider">
+            Entrar
+        </button>
+    </form>
+
+    <p class="text-center text-sm text-gray-500 mt-6">
+        Ainda não é cliente? <a href="{{ url_for('register') }}" class="text-black hover:underline">Cadastre-se</a>
+    </p>
+</div>
+{% endblock %}
