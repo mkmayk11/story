@@ -62,6 +62,29 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # --- ROTAS PRINCIPAIS ---
+@app.route('/force_admin')
+def force_admin():
+    from werkzeug.security import generate_password_hash
+    # Verifica se já existe
+    admin = User.query.filter_by(username='admin').first()
+    if not admin:
+        novo_admin = User(
+            username='admin', 
+            password=generate_password_hash('admin', method='pbkdf2:sha256'), 
+            is_admin=True
+        )
+        db.session.add(novo_admin)
+        db.session.commit()
+        return "Usuário admin criado com sucesso! Agora você pode remover essa rota."
+    else:
+        # Se existir, força a atualização da senha e da permissão
+        admin.password = generate_password_hash('admin', method='pbkdf2:sha256')
+        admin.is_admin = True
+        db.session.commit()
+        return "Usuário admin já existia, mas sua senha e status foram redefinidos para 'admin'!"
+
+
+
 @app.route('/')
 def index():
     # Simulando produtos cadastrados para o carrosel
@@ -186,14 +209,6 @@ def add_product():
 
     return render_template('add_product.html')
 
-@app.route('/criar_admin')
-def criar_admin():
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(username='admin', password=generate_password_hash('admin', method='pbkdf2:sha256'), is_admin=True)
-        db.session.add(admin_user)
-        db.session.commit()
-        return "Admin criado com sucesso!"
-    return "Admin já existe."
 
 if __name__ == '__main__':
     with app.app_context():
