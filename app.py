@@ -48,9 +48,7 @@ class Order(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     status = db.Column(db.Integer, default=1)
     
-    # Relacionamentos para facilitar o acesso
-    user = db.relationship('User', backref='orders')
-    product = db.relationship('Product', backref='orders')
+    
 
 STATUS_MAP = {
     1: "Processando seu pagamento",
