@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] =('DATABASE_URL', 'sqlite:///loja.db')
+app.config['SQLALCHEMY_DATABASE_URI'] ='DATABASE_URL', 'sqlite:///loja.db'
 
 # --- NOVA CONFIGURAÇÃO PARA UPLOAD DE FOTOS ---
 UPLOAD_FOLDER = 'static/uploads'
