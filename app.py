@@ -186,6 +186,15 @@ def add_product():
 
     return render_template('add_product.html')
 
+@app.route('/criar_admin')
+def criar_admin():
+    if not User.query.filter_by(username='admin').first():
+        admin_user = User(username='admin', password=generate_password_hash('admin', method='pbkdf2:sha256'), is_admin=True)
+        db.session.add(admin_user)
+        db.session.commit()
+        return "Admin criado com sucesso!"
+    return "Admin já existe."
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
