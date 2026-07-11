@@ -1,13 +1,13 @@
-
 {% extends "base.html" %}
 {% block content %}
 <h2 class="text-3xl font-light mb-8">Painel de Administração</h2>
-    <!-- Adicione este botão logo abaixo do <h2> do admin.html -->
+    
     <div class="mb-8">
         <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
             + Cadastrar Novo Produto
         </a>
     </div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <!-- Gerenciamento de Usuários -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -32,21 +32,41 @@
     <!-- Gerenciamento de Pedidos -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 class="text-xl font-semibold mb-4">Gerenciar Pedidos</h3>
-        <ul class="divide-y">
+        <ul class="space-y-4">
             {% for pedido in pedidos %}
-            <li class="py-4">
-                <div class="flex justify-between mb-2">
-                    <span class="font-medium">Pedido #{{ pedido.id }} - Usuário ID: {{ pedido.user_id }}</span>
-                    <span class="text-sm bg-gray-100 px-3 py-1 rounded-full">{{ status_map[pedido.status] }}</span>
+            <li class="p-4 border rounded-lg bg-gray-50">
+                <div class="flex gap-4">
+                    <!-- Foto do Produto -->
+                    {% set primeira_foto = pedido.product.imagens.split(',')[0] if pedido.product.imagens else '' %}
+                    <div class="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                        <img src="{{ primeira_foto }}" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-sm">{{ pedido.product.nome }}</h4>
+                            <span class="text-xs font-bold bg-gray-200 px-2 py-1 rounded">{{ status_map[pedido.status] }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 line-clamp-1">{{ pedido.product.descricao }}</p>
+                        <div class="mt-2 text-[10px] text-gray-700">
+                            <p><strong>Cliente:</strong> {{ pedido.user.username }}</p>
+                            <p><strong>ID Pedido:</strong> #{{ pedido.id }}</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex gap-2 text-xs mt-3">
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border p-1 rounded hover:bg-gray-50">1</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border p-1 rounded hover:bg-gray-50">2</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border p-1 rounded hover:bg-gray-50">3</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border p-1 rounded hover:bg-gray-50">4</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border p-1 rounded hover:bg-gray-50 bg-black text-white">5</a>
+
+                <!-- Botões de Alteração de Status -->
+                <div class="flex gap-2 text-[10px] mt-4 pt-3 border-t">
+                    <span class="mr-2 text-gray-400">Alterar para:</span>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border px-2 py-1 rounded hover:bg-white">1</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border px-2 py-1 rounded hover:bg-white">2</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border px-2 py-1 rounded hover:bg-white">3</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border px-2 py-1 rounded hover:bg-white">4</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border px-2 py-1 rounded hover:bg-white bg-black text-white">5</a>
                 </div>
             </li>
+            {% else %}
+            <p class="text-gray-400 text-sm italic">Nenhum pedido realizado ainda.</p>
             {% endfor %}
         </ul>
     </div>
