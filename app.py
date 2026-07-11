@@ -1,5 +1,3 @@
-
-
 import os
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, redirect, url_for, request, flash
@@ -9,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///loja.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///loja.db'
 
 # --- NOVA CONFIGURAÇÃO PARA UPLOAD DE FOTOS ---
 UPLOAD_FOLDER = 'static/uploads'
@@ -17,9 +15,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Cria a pasta automaticamente se não existir
 
 db = SQLAlchemy(app)
-
-
-
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -51,46 +48,7 @@ class Order(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     status = db.Column(db.Integer, default=1)
     
-    # Relacionamentos para facilitar o acesso
-    user = db.relationship('User', backref='orders')
-    product = db.relationship('Product', backref='orders')
-
-
-
-# --- MODELOS DE BANCO DE DADOS ---
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome_completo = db.Column(db.String(150))
-    endereco = db.Column(db.String(250))
-    bairro = db.Column(db.String(100))
-    telefone = db.Column(db.String(20))
-    username = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(200))
-    is_admin = db.Column(db.Boolean, default=False)
-    orders = db.relationship('Order', backref='user', lazy=True) # Adicione isso
-
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(100))
-    descricao = db.Column(db.Text)
-    preco = db.Column(db.Float) # NOVO: Campo de Preço
-    imagens = db.Column(db.Text) # NOVO: Salvará os caminhos das fotos separados por vírgula
-    link_externo = db.Column(db.String(300))
-    orders = db.relationship('Order', backref='product', lazy=True) # Adicione isso
-
-class Order(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    status = db.Column(db.Integer, default=1)
     
-    # Relacionamentos para facilitar o acesso
-    user = db.relationship('User', backref='orders')
-    product = db.relationship('Product', backref='orders')
-
-
-
-
 
 STATUS_MAP = {
     1: "Processando seu pagamento",
@@ -99,8 +57,6 @@ STATUS_MAP = {
     4: "Pedido a caminho",
     5: "Pedido entregue"
 }
-
-
 
 @login_manager.user_loader
 def load_user(user_id):
