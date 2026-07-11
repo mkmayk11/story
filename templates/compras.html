@@ -1,46 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-3xl font-light mb-8 border-b pb-2">Minhas Compras</h2>
+<h2 class="text-3xl font-light mb-8">Minhas Compras</h2>
 
-<div class="space-y-6">
+<div class="max-w-3xl mx-auto space-y-6">
     {% for pedido in pedidos %}
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-medium">Pedido #{{ pedido.id }}</h3>
-            <span class="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-wider">
-                {{ status_map[pedido.status] }}
-            </span>
+        <div class="flex gap-6">
+            <!-- Foto do Produto -->
+            {% set primeira_foto = pedido.product.imagens.split(',')[0] if pedido.product.imagens else '' %}
+            <div class="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                <img src="{{ primeira_foto }}" class="w-full h-full object-cover">
+            </div>
+
+            <div class="flex-grow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg">{{ pedido.product.nome }}</h3>
+                        <p class="text-sm text-gray-500">Pedido #{{ pedido.id }}</p>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wider bg-black text-white px-3 py-1 rounded-full">
+                        {{ status_map[pedido.status] }}
+                    </span>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ pedido.product.descricao }}</p>
+            </div>
         </div>
 
-        <!-- Barra de Progresso das 5 Etapas -->
-        <div class="relative pt-1">
-            <div class="flex mb-2 items-center justify-between">
-                <div class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {% if pedido.status >= 1 %}text-black bg-gray-200{% else %}text-gray-400{% endif %}">
-                    Pagamento
-                </div>
-                <div class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {% if pedido.status >= 2 %}text-black bg-gray-200{% else %}text-gray-400{% endif %}">
-                    Aprovado
-                </div>
-                <div class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {% if pedido.status >= 3 %}text-black bg-gray-200{% else %}text-gray-400{% endif %}">
-                    Preparação
-                </div>
-                <div class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {% if pedido.status >= 4 %}text-black bg-gray-200{% else %}text-gray-400{% endif %}">
-                    A Caminho
-                </div>
-                <div class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full {% if pedido.status == 5 %}text-white bg-black{% else %}text-gray-400{% endif %}">
-                    Entregue
-                </div>
+        <!-- Barra de Progresso Visual -->
+        <div class="mt-6">
+            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-green-600 h-full" style="width: {{ (pedido.status / 5) * 100 }}%"></div>
             </div>
-            <!-- Linha de preenchimento do progresso -->
-            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-100">
-                <div style="width: {{ (pedido.status / 5) * 100 }}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-black transition-all duration-500"></div>
+            <div class="flex justify-between text-[10px] text-gray-400 mt-1 uppercase">
+                <span>Pagamento</span>
+                <span>Entregue</span>
             </div>
         </div>
     </div>
     {% else %}
-    <div class="bg-white p-8 text-center rounded-xl border border-gray-100">
-        <p class="text-gray-500 mb-4">Você ainda não realizou nenhuma compra.</p>
-        <a href="{{ url_for('index') }}" class="text-black underline font-medium hover:text-gray-700">Ver produtos</a>
+    <div class="text-center py-20 text-gray-400">
+        <p>Você ainda não realizou nenhuma compra.</p>
+        <a href="/" class="text-black underline mt-2 block">Ver produtos</a>
     </div>
     {% endfor %}
 </div>
