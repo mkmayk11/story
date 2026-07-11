@@ -7,8 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///loja.db'
-
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///loja.db')
 # --- NOVA CONFIGURAÇÃO PARA UPLOAD DE FOTOS ---
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,9 +39,13 @@ class Product(db.Model):
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
-    status = db.Column(db.Integer, default=1) # 1 a 5
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    status = db.Column(db.Integer, default=1)
+    
+    # Relacionamentos para facilitar o acesso
+    user = db.relationship('User', backref='orders')
+    product = db.relationship('Product', backref='orders')
 
 STATUS_MAP = {
     1: "Processando seu pagamento",
@@ -112,8 +115,10 @@ def comprar(product_id):
 @app.route('/minhas_compras')
 @login_required
 def minhas_compras():
+    # Busca apenas os pedidos do usuário logado
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
-    return render_template('compras.html', pedidos=pedidos, status_map=STATUS_MAP)
+    status_map = {1: "Pagamento", 2: "Aprovado", 3: "Preparação", 4: "A Caminho", 5: "Entregue"}
+    return render_template('minhas_compras.html', pedidos=pedidos, status_map=status_map)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
@@ -180,6 +185,21 @@ def add_product():
         return redirect(url_for('admin_panel'))
 
     return render_template('add_product.html')
+
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    # O PagBank envia dados via JSON
+    dados = request.json
+    
+    # Você precisaria extrair o ID do pedido e o novo status
+    # Exemplo (pseudocódigo):
+    # order_id = dados['reference_id']
+    # pedido = Order.query.get(order_id)
+    # pedido.status = 2 # Pagamento feito
+    # db.session.commit()
+    
+    return "OK", 200    
 
 if __name__ == '__main__':
     with app.app_context():
