@@ -1,24 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="max-w-md mx-auto bg-white p-10 rounded-xl shadow-sm border border-gray-100 mt-20 text-center">
-    <h2 class="text-2xl font-light mb-4">Preparando seu pagamento...</h2>
-    <p class="text-gray-600 mb-8">Estamos conectando você ao ambiente seguro do PagBank.</p>
+    <h2 class="text-2xl font-light mb-4">Pagamento Seguro</h2>
+    <p class="text-gray-600 mb-8">Clique no botão abaixo para concluir sua compra.</p>
     
-    <!-- Este botão é a forma mais segura de abrir o link sem passar o cabeçalho de origem -->
-    <a href="#" 
-       id="linkPagamento"
+    <!-- Link simples, sem scripts, sem manipulação de origem -->
+    <a href="{{ link }}" 
+       target="_blank" 
        class="block w-full bg-green-600 text-white py-4 rounded-lg hover:bg-green-700 transition-colors font-bold uppercase tracking-wider">
-       Clique aqui para pagar
+       ACESSAR PAGAMENTO
     </a>
-
-    <script>
-        // Este script força a abertura do link sem passar o "Referer"
-        document.getElementById('linkPagamento').addEventListener('click', function(e) {
-            e.preventDefault();
-            var newWindow = window.open('', '_blank');
-            newWindow.opener = null;
-            newWindow.location = "{{ link }}";
-        });
-    </script>
 </div>
 {% endblock %}
