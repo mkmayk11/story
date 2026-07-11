@@ -31,6 +31,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(200))
     is_admin = db.Column(db.Boolean, default=False)
+    orders = db.relationship('Order', backref='user', lazy=True) # Adicione isso
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,6 +40,7 @@ class Product(db.Model):
     preco = db.Column(db.Float) # NOVO: Campo de Preço
     imagens = db.Column(db.Text) # NOVO: Salvará os caminhos das fotos separados por vírgula
     link_externo = db.Column(db.String(300))
+    orders = db.relationship('Order', backref='product', lazy=True) # Adicione isso
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
