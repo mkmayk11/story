@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('sqlite:///loja.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///loja.db')
 
 # --- NOVA CONFIGURAÇÃO PARA UPLOAD DE FOTOS ---
 UPLOAD_FOLDER = 'static/uploads'
@@ -15,8 +15,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Cria a pasta automaticamente se não existir
 
 db = SQLAlchemy(app)
-with app.app_context():
-        db.create_all()
 
 
 login_manager = LoginManager(app)
