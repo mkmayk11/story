@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-3xl font-light mb-8">Categorias</h2>
+
+{% for cat in ['Roupas Femininas', 'Roupas Masculinas', 'Eletrodomésticos', 'Melhorias para Casa'] %}
+<section class="mb-10">
+    <h3 class="text-xl font-bold border-b mb-4">{{ cat }}</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% for p in produtos if p.categoria == cat %}
+            <div class="border p-2 rounded">
+                <img src="{{ p.imagens.split(',')[0] }}" class="h-32 w-full object-cover">
+                <p class="text-sm font-bold">{{ p.nome }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endfor %}
+{% endblock %}
