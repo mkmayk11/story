@@ -14,23 +14,23 @@
         <!-- Detalhes -->
         <div class="flex flex-col">
             <h2 class="text-3xl font-bold mb-2">{{ produto.nome }}</h2>
-            
-            <!-- Linha de depuração para identificar a categoria vinda do banco -->
             <p class="text-[10px] text-gray-400">DEBUG: Categoria atual é [{{ produto.categoria }}]</p>
-            
             <p class="text-2xl text-green-700 font-light mb-4">R$ {{ "%.2f"|format(produto.preco) }}</p>
             <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
             
             {% if current_user.is_authenticated %}
-                <!-- Formulário para envio do tamanho ou numeração -->
                 <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full">
+                    
+                    <!-- Lógica condicional: só exibe se a categoria for uma das permitidas -->
+                    {% set cat = (produto.categoria or '').lower() %}
+                    {% if cat in ['calçados', 'roupas feminina', 'roupas masculina'] %}
                     <div class="mb-4">
                         <label class="block text-sm font-bold mb-2">
-                            {% if 'calça' in (produto.categoria or '').lower() %}Escolha a Numeração:{% else %}Escolha o Tamanho:{% endif %}
+                            {% if 'calça' in cat %}Escolha a Numeração:{% else %}Escolha o Tamanho:{% endif %}
                         </label>
                         
                         <select name="tamanho" required class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-black">
-                            {% if 'calça' in (produto.categoria or '').lower() %}
+                            {% if 'calça' in cat %}
                                 {% for num in ['35', '36', '37', '38', '39', '40', '41', '42'] %}
                                     <option value="{{ num }}">{{ num }}</option>
                                 {% endfor %}
@@ -42,6 +42,7 @@
                             {% endif %}
                         </select>
                     </div>
+                    {% endif %}
                     
                     <button type="submit" class="w-full text-center bg-black text-white py-4 rounded-lg font-bold uppercase hover:bg-gray-800 transition-colors">
                         Comprar Agora
