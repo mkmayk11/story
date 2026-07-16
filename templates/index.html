@@ -8,10 +8,21 @@
     {% for produto in produtos %}
     
     <div class="min-w-[300px] bg-white rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 snap-center overflow-hidden border border-gray-100 flex flex-col">
-        <!-- Pega a primeira imagem da lista (separada por vírgula) -->
-        {% set primeira_foto = produto.imagens.split(',')[0] if produto.imagens else '' %}
         
-        <div class="h-64 bg-gray-100" style="background-image: url('{{ primeira_foto }}'); background-size: cover; background-position: center;"></div>
+        <!-- NOVA GALERIA DE IMAGENS -->
+        <!-- Separa a lista de links pela vírgula -->
+        {% set lista_de_fotos = produto.imagens.split(',') if produto.imagens else [] %}
+        
+        <!-- Cria um container que permite rolar para o lado caso tenha mais de uma foto -->
+        <div class="h-64 flex overflow-x-auto snap-x snap-mandatory no-scrollbar" style="scrollbar-width: none; -ms-overflow-style: none;">
+            {% for foto in lista_de_fotos %}
+                {% if foto %}
+                    <!-- Cada foto vai ocupar 100% da largura do card, forçando a próxima para o lado -->
+                    <div class="w-full h-full flex-shrink-0 snap-center bg-gray-100" style="background-image: url('{{ foto }}'); background-size: cover; background-position: center;"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <!-- FIM DA GALERIA DE IMAGENS -->
         
         <div class="p-6 flex flex-col flex-grow">
             <div class="flex justify-between items-start mb-2">
