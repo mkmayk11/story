@@ -101,6 +101,8 @@
                             <p class="font-bold mb-1">Dados do Cliente e Entrega:</p>
                             <p><strong>Nome:</strong> {{ pedido.user.nome_completo }} (@{{ pedido.user.username }})</p>
                             <p><strong>ID do Pedido:</strong> #{{ pedido.id }}</p>
+                            <!-- TAMANHO ADICIONADO ABAIXO -->
+                            <p><strong>Tamanho:</strong> {{ pedido.tamanho if pedido.tamanho else 'N/A' }}</p>
                             <p><strong>Telefone:</strong> {{ pedido.user.telefone }}</p>
                             <p><strong>Endereço:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
                         </div>
