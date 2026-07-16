@@ -5,14 +5,26 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+# --- NOVO IMPORT DO CLOUDINARY ---
+import cloudinary
+import cloudinary.uploader
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
-# --- NOVA CONFIGURAÇÃO PARA UPLOAD DE FOTOS ---
+# --- CONFIGURAÇÃO DO CLOUDINARY ---
+# Substitua com suas credenciais reais criadas no site do Cloudinary
+cloudinary.config(
+  cloud_name = 'hko3ntds',
+  api_key = '419489122199773',
+  api_secret = 'zyjrwtQWqra7hsDxB3kHFK6aBD8'
+)
+
+# Mantido por segurança, caso decida voltar atrás
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Cria a pasta automaticamente se não existir
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
 
 db = SQLAlchemy(app)
 with app.app_context():
@@ -31,16 +43,16 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(200))
     is_admin = db.Column(db.Boolean, default=False)
-    orders = db.relationship('Order', backref='user', lazy=True) # Adicione isso
+    orders = db.relationship('Order', backref='user', lazy=True) 
 
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(100))
     descricao = db.Column(db.Text)
-    preco = db.Column(db.Float) # NOVO: Campo de Preço
-    imagens = db.Column(db.Text) # NOVO: Salvará os caminhos das fotos separados por vírgula
+    preco = db.Column(db.Float) 
+    imagens = db.Column(db.Text) 
     link_externo = db.Column(db.String(300))
-    orders = db.relationship('Order', backref='product', lazy=True) # Adicione isso
+    orders = db.relationship('Order', backref='product', lazy=True) 
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,15 +60,14 @@ class Order(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     status = db.Column(db.Integer, default=1)
     
-    
-
+# --- STATUS MAP ATUALIZADO ---
 STATUS_MAP = {
     1: "Processando seu pagamento",
     2: "Pagamento feito",
     3: "Pedido em preparação",
     4: "Pedido a caminho",
     5: "Pedido entregue",
-    6: "Compra cancelada"
+    6: "Compra cancelada" # NOVO: Status de cancelamento
 }
 
 @login_manager.user_loader
@@ -66,7 +77,6 @@ def load_user(user_id):
 # --- ROTAS PRINCIPAIS ---
 @app.route('/')
 def index():
-    # Simulando produtos cadastrados para o carrosel
     produtos = Product.query.all()
     return render_template('index.html', produtos=produtos)
 
@@ -108,19 +118,16 @@ def logout():
 @login_required
 def comprar(product_id):
     produto = Product.query.get_or_404(product_id)
-    # Registra o pedido
     novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1)
     db.session.add(novo_pedido)
     db.session.commit()
-    
-    # Renderiza uma página intermediária em vez de redirecionar direto
     return render_template('pagamento_intermediario.html', link=produto.link_externo)
 
 @app.route('/minhas_compras')
 @login_required
 def minhas_compras():
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
-    return render_template('minhas_compras.html', pedidos=pedidos, status_map=STATUS_MAP)
+    return render_template('compras.html', pedidos=pedidos, status_map=STATUS_MAP)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
@@ -130,14 +137,15 @@ def admin_panel():
         return "Acesso Negado", 403
     usuarios = User.query.all()
     pedidos = Order.query.all()
-    return render_template('admin.html', usuarios=usuarios, pedidos=pedidos, status_map=STATUS_MAP)
+    produtos = Product.query.all() # NOVO: Necessário para o admin excluir produtos
+    return render_template('admin.html', usuarios=usuarios, pedidos=pedidos, produtos=produtos, status_map=STATUS_MAP)
 
 @app.route('/admin/toggle_role/<int:user_id>')
 @login_required
 def toggle_role(user_id):
     if current_user.is_admin:
         user = User.query.get(user_id)
-        if user.username != 'admin': # Protege o admin principal
+        if user.username != 'admin':
             user.is_admin = not user.is_admin
             db.session.commit()
     return redirect(url_for('admin_panel'))
@@ -145,11 +153,30 @@ def toggle_role(user_id):
 @app.route('/admin/update_order/<int:order_id>/<int:new_status>')
 @login_required
 def update_order(order_id, new_status):
-    # Atualizado o limite para 6 para incluir o cancelamento
-    if current_user.is_admin and 1 <= new_status <= 6: 
+    # NOVO: Limite atualizado para 6 para permitir cancelamento
+    if current_user.is_admin and 1 <= new_status <= 6:
         order = Order.query.get(order_id)
         order.status = new_status
         db.session.commit()
+    return redirect(url_for('admin_panel'))
+
+# NOVO: Rota para excluir produtos
+@app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    if not current_user.is_admin:
+        return "Acesso Negado", 403
+        
+    produto = Product.query.get_or_404(product_id)
+    
+    # Deleta os pedidos associados a este produto primeiro (evita erro no banco)
+    Order.query.filter_by(product_id=produto.id).delete()
+    
+    # Deleta o produto
+    db.session.delete(produto)
+    db.session.commit()
+    
+    flash('Produto excluído com sucesso!')
     return redirect(url_for('admin_panel'))
 
 @app.route('/admin/add_product', methods=['GET', 'POST'])
@@ -161,24 +188,19 @@ def add_product():
     if request.method == 'POST':
         nome = request.form['nome']
         descricao = request.form['descricao']
-        # Substitui vírgula por ponto caso o admin digite "199,90" ao invés de "199.90"
         preco = float(request.form['preco'].replace(',', '.')) 
         link_externo = request.form['link_externo']
 
-        # Recebe a lista de fotos enviadas
         fotos = request.files.getlist('fotos')
         caminhos_fotos = []
 
         for foto in fotos:
             if foto.filename != '':
-                filename = secure_filename(foto.filename)
-                # Salva a foto na pasta static/uploads
-                caminho_salvar = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                foto.save(caminho_salvar)
-                # Guarda o caminho para usar no HTML (com a barra invertida ajustada para web)
-                caminhos_fotos.append(f"/{caminho_salvar}".replace("\\", "/"))
+                # NOVO: Upload da imagem direto para nuvem com Cloudinary
+                upload_result = cloudinary.uploader.upload(foto)
+                url_da_imagem = upload_result['secure_url']
+                caminhos_fotos.append(url_da_imagem)
 
-        # Junta todos os caminhos em uma única string separada por vírgulas
         imagens_str = ",".join(caminhos_fotos)
 
         novo_produto = Product(nome=nome, descricao=descricao, preco=preco, imagens=imagens_str, link_externo=link_externo)
@@ -189,29 +211,9 @@ def add_product():
 
     return render_template('add_product.html')
 
-
-@app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
-@login_required
-def delete_product(product_id):
-    if not current_user.is_admin:
-        return "Acesso Negado", 403
-        
-    produto = Product.query.get_or_404(product_id)
-    
-    # Deleta os pedidos associados a este produto primeiro (evita erro de ForeignKey)
-    Order.query.filter_by(product_id=produto.id).delete()
-    
-    # Deleta o produto
-    db.session.delete(produto)
-    db.session.commit()
-    
-    flash('Produto excluído com sucesso!')
-    return redirect(url_for('admin_panel'))
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        # Cria o admin padrão caso não exista
         if not User.query.filter_by(username='admin').first():
             admin_user = User(username='admin', password=generate_password_hash('admin', method='pbkdf2:sha256'), is_admin=True)
             db.session.add(admin_user)
