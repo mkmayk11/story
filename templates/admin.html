@@ -8,23 +8,61 @@
         </a>
     </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <!-- Gerenciamento de Usuários -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+    
+    <!-- Gerenciamento de Usuários (AGORA COM TODOS OS DADOS DE CADASTRO) -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 overflow-x-auto">
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários e Dados de Cadastro</h3>
+        <table class="min-w-full text-left text-sm whitespace-nowrap">
+            <thead class="uppercase tracking-wider border-b-2 bg-gray-50">
+                <tr>
+                    <th class="px-4 py-2">Usuário</th>
+                    <th class="px-4 py-2">Nome Completo</th>
+                    <th class="px-4 py-2">Telefone</th>
+                    <th class="px-4 py-2">Endereço Completo</th>
+                    <th class="px-4 py-2 text-center">Admin</th>
+                    <th class="px-4 py-2 text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in usuarios %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">{{ user.username }}</td>
+                    <td class="px-4 py-3">{{ user.nome_completo }}</td>
+                    <td class="px-4 py-3">{{ user.telefone }}</td>
+                    <td class="px-4 py-3">{{ user.endereco }}, {{ user.bairro }}</td>
+                    <td class="px-4 py-3 text-center">
+                        {% if user.is_admin %}<span class="text-[10px] bg-black text-white px-2 py-1 rounded">SIM</span>{% else %}NÃO{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        {% if user.username != 'admin' %}
+                            <a href="{{ url_for('toggle_role', user_id=user.id) }}" class="text-xs {% if user.is_admin %}text-red-500{% else %}text-blue-500{% endif %} hover:underline">
+                                {% if user.is_admin %}Remover Admin{% else %}Tornar Admin{% endif %}
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gerenciamento de Produtos (NOVO) -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários</h3>
-        <ul class="divide-y">
-            {% for user in usuarios %}
-            <li class="py-3 flex justify-between items-center">
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos (Exclusão)</h3>
+        <ul class="space-y-4">
+            {% for produto in produtos %}
+            <li class="p-4 border rounded-lg bg-gray-50 flex justify-between items-center">
                 <div>
-                    <span class="font-medium">{{ user.username }}</span>
-                    {% if user.is_admin %}<span class="text-xs bg-black text-white px-2 py-1 rounded ml-2">ADMIN</span>{% endif %}
+                    <h4 class="font-bold text-sm">{{ produto.nome }}</h4>
+                    <p class="text-xs text-gray-500">R$ {{ "%.2f"|format(produto.preco) if produto.preco else "0.00" }}</p>
                 </div>
-                {% if user.username != 'admin' %}
-                    <a href="{{ url_for('toggle_role', user_id=user.id) }}" class="text-sm {% if user.is_admin %}text-red-500{% else %}text-blue-500{% endif %} hover:underline">
-                        {% if user.is_admin %}Remover Admin{% else %}Tornar Admin{% endif %}
-                    </a>
-                {% endif %}
+                <form action="{{ url_for('delete_product', product_id=produto.id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir este produto? Todos os pedidos atrelados a ele também serão excluídos do sistema.');">
+                    <button type="submit" class="text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 font-bold uppercase tracking-wider">Excluir</button>
+                </form>
             </li>
+            {% else %}
+            <p class="text-gray-400 text-sm italic">Nenhum produto cadastrado no momento.</p>
             {% endfor %}
         </ul>
     </div>
@@ -45,24 +83,32 @@
                     <div class="flex-grow">
                         <div class="flex justify-between items-start">
                             <h4 class="font-bold text-sm">{{ pedido.product.nome }}</h4>
-                            <span class="text-xs font-bold bg-gray-200 px-2 py-1 rounded">{{ status_map[pedido.status] }}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider {% if pedido.status == 6 %}bg-red-200 text-red-800{% else %}bg-gray-200{% endif %} px-2 py-1 rounded">{{ status_map[pedido.status] }}</span>
                         </div>
-                        <p class="text-xs text-gray-500 line-clamp-1">{{ pedido.product.descricao }}</p>
-                        <div class="mt-2 text-[10px] text-gray-700">
-                            <p><strong>Cliente:</strong> {{ pedido.user.username }}</p>
-                            <p><strong>ID Pedido:</strong> #{{ pedido.id }}</p>
+                        <p class="text-xs text-gray-500 line-clamp-1 mb-2">{{ pedido.product.descricao }}</p>
+                        
+                        <!-- DADOS DE ENTREGA NA DESCRIÇÃO -->
+                        <div class="text-[10px] text-gray-700 bg-white p-2 border rounded">
+                            <p class="font-bold mb-1">Dados do Cliente e Entrega:</p>
+                            <p><strong>Nome:</strong> {{ pedido.user.nome_completo }} (@{{ pedido.user.username }})</p>
+                            <p><strong>ID do Pedido:</strong> #{{ pedido.id }}</p>
+                            <p><strong>Telefone:</strong> {{ pedido.user.telefone }}</p>
+                            <p><strong>Endereço:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Botões de Alteração de Status -->
-                <div class="flex gap-2 text-[10px] mt-4 pt-3 border-t">
-                    <span class="mr-2 text-gray-400">Alterar para:</span>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border px-2 py-1 rounded hover:bg-white">1</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border px-2 py-1 rounded hover:bg-white">2</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border px-2 py-1 rounded hover:bg-white">3</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border px-2 py-1 rounded hover:bg-white">4</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border px-2 py-1 rounded hover:bg-white bg-black text-white">5</a>
+                <div class="flex flex-wrap gap-2 text-[10px] mt-4 pt-3 border-t items-center">
+                    <span class="mr-2 text-gray-400 font-bold uppercase">Mudar Status:</span>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">1</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">2</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">3</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">4</a>
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border px-2 py-1 rounded hover:bg-gray-800 bg-black text-white">5</a>
+                    
+                    <!-- BOTÃO DE CANCELAMENTO -->
+                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=6) }}" class="border border-red-500 text-red-500 px-2 py-1 rounded hover:bg-red-500 hover:text-white ml-auto font-bold uppercase">Cancelar Compra</a>
                 </div>
             </li>
             {% else %}
