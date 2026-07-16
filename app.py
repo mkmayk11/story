@@ -87,6 +87,12 @@ def produtos():
     produtos = Product.query.all()
     return render_template('produtos.html', produtos=produtos)
 
+
+@app.route('/produto/<int:id>')
+def detalhe_produto(id):
+    produto = Product.query.get_or_404(id)
+    return render_template('detalhe.html', produto=produto)
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
