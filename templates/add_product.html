@@ -29,9 +29,24 @@
             <textarea name="descricao" rows="3" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black"></textarea>
         </div>
 
+        <!-- NOVOS CAMPOS: CATEGORIA E DESTAQUE -->
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Categoria</label>
+            <select name="categoria" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black">
+                <option value="Roupas Femininas">Roupas Femininas</option>
+                <option value="Roupas Masculinas">Roupas Masculinas</option>
+                <option value="Eletrodomésticos">Eletrodomésticos</option>
+                <option value="Melhorias para Casa">Melhorias para Casa</option>
+            </select>
+        </div>
+
+        <label class="flex items-center gap-2 mt-4 text-sm text-gray-600">
+            <input type="checkbox" name="destaque" class="w-4 h-4"> Marcar como Lançamento (Destaque na Home)
+        </label>
+        <!-- FIM DOS NOVOS CAMPOS -->
+
         <div>
             <label class="block text-sm text-gray-600 mb-1">Fotos do Produto (Pode selecionar várias)</label>
-            <!-- o atributo 'multiple' permite escolher mais de uma foto na janelinha -->
             <input type="file" name="fotos" multiple accept="image/*" required class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800">
         </div>
         
