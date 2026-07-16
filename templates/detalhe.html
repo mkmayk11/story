@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border">
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Imagem Principal -->
+        {% set fotos = produto.imagens.split(',') %}
+        <img src="{{ fotos[0] }}" class="w-full h-96 object-cover rounded-lg">
+        
+        <!-- Detalhes -->
+        <div class="flex flex-col">
+            <h2 class="text-3xl font-bold mb-2">{{ produto.nome }}</h2>
+            <p class="text-2xl text-green-700 font-light mb-4">R$ {{ "%.2f"|format(produto.preco) }}</p>
+            <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
+            
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('comprar', product_id=produto.id) }}" 
+                   target="_blank"
+                   class="w-full text-center bg-black text-white py-4 rounded-lg font-bold uppercase hover:bg-gray-800">
+                   Comprar Agora
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="w-full text-center bg-gray-200 py-4 rounded-lg uppercase">Faça login para comprar</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
