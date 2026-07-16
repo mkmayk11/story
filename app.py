@@ -5,7 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
@@ -16,6 +15,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True) # Cria a pasta automaticamente se não existir
 
 db = SQLAlchemy(app)
+with app.app_context():
+    db.create_all()
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -54,7 +55,8 @@ STATUS_MAP = {
     2: "Pagamento feito",
     3: "Pedido em preparação",
     4: "Pedido a caminho",
-    5: "Pedido entregue"
+    5: "Pedido entregue",
+    6: "Compra cancelada"
 }
 
 @login_manager.user_loader
@@ -62,10 +64,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 # --- ROTAS PRINCIPAIS ---
-
-
-
-
 @app.route('/')
 def index():
     # Simulando produtos cadastrados para o carrosel
@@ -122,7 +120,7 @@ def comprar(product_id):
 @login_required
 def minhas_compras():
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
-    return render_template('compras.html', pedidos=pedidos, status_map=STATUS_MAP)
+    return render_template('minhas_compras.html', pedidos=pedidos, status_map=STATUS_MAP)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
@@ -147,7 +145,8 @@ def toggle_role(user_id):
 @app.route('/admin/update_order/<int:order_id>/<int:new_status>')
 @login_required
 def update_order(order_id, new_status):
-    if current_user.is_admin and 1 <= new_status <= 5:
+    # Atualizado o limite para 6 para incluir o cancelamento
+    if current_user.is_admin and 1 <= new_status <= 6: 
         order = Order.query.get(order_id)
         order.status = new_status
         db.session.commit()
@@ -190,6 +189,24 @@ def add_product():
 
     return render_template('add_product.html')
 
+
+@app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
+@login_required
+def delete_product(product_id):
+    if not current_user.is_admin:
+        return "Acesso Negado", 403
+        
+    produto = Product.query.get_or_404(product_id)
+    
+    # Deleta os pedidos associados a este produto primeiro (evita erro de ForeignKey)
+    Order.query.filter_by(product_id=produto.id).delete()
+    
+    # Deleta o produto
+    db.session.delete(produto)
+    db.session.commit()
+    
+    flash('Produto excluído com sucesso!')
+    return redirect(url_for('admin_panel'))
 
 if __name__ == '__main__':
     with app.app_context():
