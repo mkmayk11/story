@@ -17,6 +17,13 @@
                     <div>
                         <h3 class="font-bold text-lg">{{ pedido.product.nome }}</h3>
                         <p class="text-sm text-gray-500">Pedido #{{ pedido.id }}</p>
+                        <!-- TAMANHO ADICIONADO AQUI -->
+                        <p class="text-sm text-gray-700 mt-1">
+                            <strong>Tamanho:</strong> 
+                            <span class="font-bold border border-gray-300 px-2 py-0.5 rounded bg-gray-50 text-xs">
+                                {{ pedido.tamanho if pedido.tamanho else 'N/A' }}
+                            </span>
+                        </p>
                     </div>
                     <!-- Cor adaptável para status cancelado -->
                     <span class="text-[10px] font-bold uppercase tracking-wider {% if pedido.status == 6 %}bg-red-600{% else %}bg-black{% endif %} text-white px-3 py-1 rounded-full text-center">
