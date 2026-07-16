@@ -22,11 +22,11 @@
                 <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full">
                     <div class="mb-4">
                         <label class="block text-sm font-bold mb-2">
-                            {% if 'calçado' in produto.nome.lower() %}Escolha a Numeração:{% else %}Escolha o Tamanho:{% endif %}
+                            {% if produto.categoria == 'calçados' %}Escolha a Numeração:{% else %}Escolha o Tamanho:{% endif %}
                         </label>
                         
                         <select name="tamanho" required class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-black">
-                            {% if 'calçado' in produto.nome.lower() %}
+                            {% if produto.categoria == 'calçados' %}
                                 {% for num in ['35', '36', '37', '38', '39', '40', '41', '42'] %}
                                     <option value="{{ num }}">{{ num }}</option>
                                 {% endfor %}
