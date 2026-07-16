@@ -18,15 +18,24 @@
             <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
             
             {% if current_user.is_authenticated %}
-                <!-- Formulário para envio do tamanho -->
+                <!-- Formulário para envio do tamanho ou numeração -->
                 <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full">
                     <div class="mb-4">
-                        <label class="block text-sm font-bold mb-2">Escolha o Tamanho:</label>
+                        <label class="block text-sm font-bold mb-2">
+                            {% if 'calçado' in produto.nome.lower() %}Escolha a Numeração:{% else %}Escolha o Tamanho:{% endif %}
+                        </label>
+                        
                         <select name="tamanho" required class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-black">
-                            <option value="P">P</option>
-                            <option value="M">M</option>
-                            <option value="G">G</option>
-                            <option value="GG">GG</option>
+                            {% if 'calçado' in produto.nome.lower() %}
+                                {% for num in ['35', '36', '37', '38', '39', '40', '41', '42'] %}
+                                    <option value="{{ num }}">{{ num }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="P">P</option>
+                                <option value="M">M</option>
+                                <option value="G">G</option>
+                                <option value="GG">GG</option>
+                            {% endif %}
                         </select>
                     </div>
                     
