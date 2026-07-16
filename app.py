@@ -61,6 +61,7 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     status = db.Column(db.Integer, default=1)
+    tamanho = db.Column(db.String(5))
     
 # --- STATUS MAP ATUALIZADO ---
 STATUS_MAP = {
@@ -127,11 +128,12 @@ def logout():
     return redirect(url_for('index'))
 
 # --- ÁREA DO CLIENTE ---
-@app.route('/comprar/<int:product_id>')
+@app.route('/comprar/<int:product_id>', methods=['POST'])
 @login_required
 def comprar(product_id):
+    tamanho_escolhido = request.form.get('tamanho')
     produto = Product.query.get_or_404(product_id)
-    novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1)
+    novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1, tamanho=tamanho_escolhido)
     db.session.add(novo_pedido)
     db.session.commit()
     return render_template('pagamento_intermediario.html', link=produto.link_externo)
