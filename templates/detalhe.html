@@ -13,13 +13,26 @@
             <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
             
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('comprar', product_id=produto.id) }}" 
-                   target="_blank"
-                   class="w-full text-center bg-black text-white py-4 rounded-lg font-bold uppercase hover:bg-gray-800">
-                   Comprar Agora
-                </a>
+                <!-- Formulário para envio do tamanho -->
+                <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full">
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">Escolha o Tamanho:</label>
+                        <select name="tamanho" required class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:border-black">
+                            <option value="P">P</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                            <option value="GG">GG</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full text-center bg-black text-white py-4 rounded-lg font-bold uppercase hover:bg-gray-800 transition-colors">
+                        Comprar Agora
+                    </button>
+                </form>
             {% else %}
-                <a href="{{ url_for('login') }}" class="w-full text-center bg-gray-200 py-4 rounded-lg uppercase">Faça login para comprar</a>
+                <a href="{{ url_for('login') }}" class="w-full text-center bg-gray-200 py-4 rounded-lg uppercase hover:bg-gray-300 transition-colors">
+                    Faça login para comprar
+                </a>
             {% endif %}
         </div>
     </div>
