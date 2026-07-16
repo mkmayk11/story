@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-3xl font-light mb-8">Painel de Administração</h2>
+
+<!-- Cabeçalho com o Título e o Botão de Auto Refresh -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 border-b pb-4 gap-4">
+    <h2 class="text-3xl font-light">Painel de Administração</h2>
     
-    <div class="mb-8">
-        <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
-            + Cadastrar Novo Produto
-        </a>
-    </div>
+    <!-- Botão de Auto Refresh -->
+    <button id="autoRefreshToggle" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm uppercase font-bold tracking-wider transition-colors shadow-sm">
+        Auto Refresh: DESLIGADO
+    </button>
+</div>
+    
+<div class="mb-8">
+    <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
+        + Cadastrar Novo Produto
+    </a>
+</div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     
@@ -117,4 +126,46 @@
         </ul>
     </div>
 </div>
+
+<!-- LÓGICA DO AUTO REFRESH -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const toggleBtn = document.getElementById("autoRefreshToggle");
+        let refreshTimer;
+
+        // Checa se o admin já havia deixado o botão ligado antes da página carregar
+        let isRefreshOn = localStorage.getItem("autoRefreshAdmin") === "true";
+
+        function applyState() {
+            if (isRefreshOn) {
+                // Modo Ligado: Botão Verde e agenda o reload para 40s (40000ms)
+                toggleBtn.classList.remove("bg-red-600", "hover:bg-red-700");
+                toggleBtn.classList.add("bg-green-600", "hover:bg-green-700");
+                toggleBtn.innerText = "Auto Refresh: LIGADO (40s)";
+
+                refreshTimer = setTimeout(() => {
+                    window.location.reload();
+                }, 40000);
+            } else {
+                // Modo Desligado: Botão Vermelho e cancela qualquer timer
+                toggleBtn.classList.remove("bg-green-600", "hover:bg-green-700");
+                toggleBtn.classList.add("bg-red-600", "hover:bg-red-700");
+                toggleBtn.innerText = "Auto Refresh: DESLIGADO";
+
+                clearTimeout(refreshTimer);
+            }
+        }
+
+        // Quando o admin clica no botão
+        toggleBtn.addEventListener("click", function() {
+            isRefreshOn = !isRefreshOn; // Alterna o status
+            localStorage.setItem("autoRefreshAdmin", isRefreshOn); // Salva o status na memória do navegador
+            clearTimeout(refreshTimer); // Limpa o timer atual por precaução
+            applyState(); // Roda a função para trocar as cores e ativar/desativar
+        });
+
+        // Roda a checagem pela primeira vez assim que a tela abre
+        applyState();
+    });
+</script>
 {% endblock %}
