@@ -127,7 +127,7 @@ def comprar(product_id):
 @login_required
 def minhas_compras():
     pedidos = Order.query.filter_by(user_id=current_user.id).all()
-    return render_template('compras.html', pedidos=pedidos, status_map=STATUS_MAP)
+    return render_template('minhas_compras.html', pedidos=pedidos, status_map=STATUS_MAP)
 
 # --- ÁREA DO ADMIN ---
 @app.route('/admin')
