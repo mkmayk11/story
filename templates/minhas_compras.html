@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-3xl font-light mb-8">Minhas Compras</h2>
+
+<div class="max-w-3xl mx-auto space-y-6">
+    {% for pedido in pedidos %}
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div class="flex gap-6 flex-col sm:flex-row">
+            <!-- Foto do Produto -->
+            {% set primeira_foto = pedido.product.imagens.split(',')[0] if pedido.product.imagens else '' %}
+            <div class="w-full sm:w-24 h-48 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                <img src="{{ primeira_foto }}" class="w-full h-full object-cover">
+            </div>
+
+            <div class="flex-grow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg">{{ pedido.product.nome }}</h3>
+                        <p class="text-sm text-gray-500">Pedido #{{ pedido.id }}</p>
+                    </div>
+                    <!-- Cor adaptável para status cancelado -->
+                    <span class="text-[10px] font-bold uppercase tracking-wider {% if pedido.status == 6 %}bg-red-600{% else %}bg-black{% endif %} text-white px-3 py-1 rounded-full text-center">
+                        {{ status_map[pedido.status] }}
+                    </span>
+                </div>
+                <p class="mt-2 text-sm text-gray-600 line-clamp-2">{{ pedido.product.descricao }}</p>
+                
+                <!-- DADOS DO ENDEREÇO DE ENTREGA -->
+                <div class="mt-4 p-3 bg-gray-50 rounded border text-xs text-gray-700">
+                    <p class="font-bold mb-1 uppercase tracking-wider text-[10px] text-gray-500">Endereço de Entrega</p>
+                    <p><strong>Nome:</strong> {{ pedido.user.nome_completo }}</p>
+                    <p><strong>Local:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
+                    <p><strong>Contato:</strong> {{ pedido.user.telefone }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de Progresso Visual -->
+        <div class="mt-6">
+            {% if pedido.status == 6 %}
+            <!-- Barra vermelha se estiver cancelado -->
+            <div class="w-full bg-red-100 h-2 rounded-full overflow-hidden">
+                <div class="bg-red-600 h-full" style="width: 100%"></div>
+            </div>
+            <div class="flex justify-center text-[10px] text-red-600 mt-1 uppercase font-bold tracking-wider">
+                <span>Compra Cancelada pelo Administrador</span>
+            </div>
+            {% else %}
+            <!-- Barra verde normal para os outros status -->
+            <div class="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                <div class="bg-green-600 h-full transition-all duration-500" style="width: {{ (pedido.status / 5) * 100 }}%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider">
+                <span>Pagamento</span>
+                <span>Entregue</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-20 text-gray-400">
+        <p>Você ainda não realizou nenhuma compra.</p>
+        <a href="/" class="text-black font-bold uppercase text-xs tracking-wider border-b-2 border-black pb-1 mt-4 inline-block hover:text-gray-600 hover:border-gray-600 transition-colors">Ver produtos da loja</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
