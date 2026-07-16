@@ -24,7 +24,7 @@ cloudinary.config(
 # Mantido por segurança, caso decida voltar atrás
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)  
+os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
 
 db = SQLAlchemy(app)
 with app.app_context():
@@ -53,6 +53,8 @@ class Product(db.Model):
     imagens = db.Column(db.Text) 
     link_externo = db.Column(db.String(300))
     orders = db.relationship('Order', backref='product', lazy=True) 
+    categoria = db.Column(db.String(50), nullable=False) # Adicione isso
+    destaque = db.Column(db.Boolean, default=False)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -79,6 +81,11 @@ def load_user(user_id):
 def index():
     produtos = Product.query.all()
     return render_template('index.html', produtos=produtos)
+
+@app.route('/produtos')
+def produtos():
+    produtos = Product.query.all()
+    return render_template('produtos.html', produtos=produtos)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -190,6 +197,10 @@ def add_product():
         descricao = request.form['descricao']
         preco = float(request.form['preco'].replace(',', '.')) 
         link_externo = request.form['link_externo']
+        
+        # NOVOS CAMPOS
+        categoria = request.form.get('categoria')
+        destaque = True if request.form.get('destaque') == 'on' else False
 
         fotos = request.files.getlist('fotos')
         caminhos_fotos = []
@@ -203,7 +214,17 @@ def add_product():
 
         imagens_str = ",".join(caminhos_fotos)
 
-        novo_produto = Product(nome=nome, descricao=descricao, preco=preco, imagens=imagens_str, link_externo=link_externo)
+        # OBJETO ATUALIZADO COM CATEGORIA E DESTAQUE
+        novo_produto = Product(
+            nome=nome, 
+            descricao=descricao, 
+            preco=preco, 
+            imagens=imagens_str, 
+            link_externo=link_externo,
+            categoria=categoria,
+            destaque=destaque
+        )
+        
         db.session.add(novo_produto)
         db.session.commit()
 
