@@ -24,7 +24,7 @@ cloudinary.config(
 # Mantido por segurança, caso decida voltar atrás
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True) 
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  
 
 db = SQLAlchemy(app)
 with app.app_context():
