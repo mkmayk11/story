@@ -55,6 +55,7 @@ class Product(db.Model):
     orders = db.relationship('Order', backref='product', lazy=True) 
     categoria = db.Column(db.String(50), nullable=False) # Adicione isso
     destaque = db.Column(db.Boolean, default=False)
+    video_url = db.Column(db.String(500))
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -204,7 +205,7 @@ def add_product():
         nome = request.form['nome']
         descricao = request.form['descricao']
         preco = float(request.form['preco'].replace(',', '.')) 
-        video_url = request.form['video_url'] # Recebe do formulário HTML
+        video_url = request.form.get('video_url', '')
         
         # NOVOS CAMPOS
         categoria = request.form.get('categoria')
