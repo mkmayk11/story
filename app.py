@@ -204,7 +204,7 @@ def add_product():
         nome = request.form['nome']
         descricao = request.form['descricao']
         preco = float(request.form['preco'].replace(',', '.')) 
-        link_externo = request.form['link_externo']
+        video_url = request.form['video_url'] # Recebe do formulário HTML
         
         # NOVOS CAMPOS
         categoria = request.form.get('categoria')
@@ -228,7 +228,7 @@ def add_product():
             descricao=descricao, 
             preco=preco, 
             imagens=imagens_str, 
-            link_externo=link_externo,
+            video_url=video_url, # Mude aqui também
             categoria=categoria,
             destaque=destaque
         )
