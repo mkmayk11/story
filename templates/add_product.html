@@ -6,7 +6,6 @@
         <a href="{{ url_for('admin_panel') }}" class="text-sm text-gray-500 hover:text-black">Voltar</a>
     </div>
     
-    <!-- enctype é OBRIGATÓRIO para enviar imagens -->
     <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="space-y-4">
         <div>
             <label class="block text-sm text-gray-600 mb-1">Nome do Produto</label>
@@ -25,34 +24,37 @@
         </div>
 
         <div>
+            <label class="block text-sm text-gray-600 mb-1">Link do Vídeo (TikTok ou YouTube)</label>
+            <input type="text" name="video_url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black" placeholder="Cole o link aqui...">
+        </div>
+
+        <div>
             <label class="block text-sm text-gray-600 mb-1">Descrição</label>
             <textarea name="descricao" rows="3" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black"></textarea>
         </div>
 
-        <!-- NOVOS CAMPOS: CATEGORIA E DESTAQUE -->
         <div>
-    <label class="block text-sm text-gray-600 mb-1">Categoria</label>
-    <select name="categoria" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black">
-        <option value="Roupas Femininas">Roupas Femininas</option>
-        <option value="Roupas Masculinas">Roupas Masculinas</option>
-        <option value="Eletrodomésticos">Eletrodomésticos</option>
-        <option value="Melhorias para Casa">Melhorias para Casa</option>
-        <option value="Ferramentas">Ferramentas</option>
-        <option value="Cozinha">Cozinha</option>
-        <option value="Banheiro">Banheiro</option>
-        <option value="Quarto">Quarto</option>
-        <option value="Decoração">Decoração</option>
-        <option value="Eletrônicos">Eletrônicos</option>
-        <option value="Calçados">Calçados</option>
-        <option value="Adornos">Adornos</option>
-        <option value="Diversos">Diversos</option>
-    </select>
-</div>
+            <label class="block text-sm text-gray-600 mb-1">Categoria</label>
+            <select name="categoria" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black">
+                <option value="Roupas Femininas">Roupas Femininas</option>
+                <option value="Roupas Masculinas">Roupas Masculinas</option>
+                <option value="Eletrodomésticos">Eletrodomésticos</option>
+                <option value="Melhorias para Casa">Melhorias para Casa</option>
+                <option value="Ferramentas">Ferramentas</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Banheiro">Banheiro</option>
+                <option value="Quarto">Quarto</option>
+                <option value="Decoração">Decoração</option>
+                <option value="Eletrônicos">Eletrônicos</option>
+                <option value="Calçados">Calçados</option>
+                <option value="Adornos">Adornos</option>
+                <option value="Diversos">Diversos</option>
+            </select>
+        </div>
 
         <label class="flex items-center gap-2 mt-4 text-sm text-gray-600">
             <input type="checkbox" name="destaque" class="w-4 h-4"> Marcar como Lançamento (Destaque na Home)
         </label>
-        <!-- FIM DOS NOVOS CAMPOS -->
 
         <div>
             <label class="block text-sm text-gray-600 mb-1">Fotos do Produto (Pode selecionar várias)</label>
@@ -62,8 +64,6 @@
         <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider mt-4">
             Salvar Produto
         </button>
-
-        <input name="video_url" type="text" placeholder="Cole o link do vídeo aqui">
     </form>
 </div>
 {% endblock %}
