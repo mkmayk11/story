@@ -18,12 +18,17 @@
 <div class="w-full rounded-lg overflow-hidden border">
     {% if 'tiktok.com' in produto.video_url %}
         <!-- Player TikTok -->
-        <div class="flex justify-center bg-gray-50 p-2">
-            <blockquote class="tiktok-embed" cite="{{ produto.video_url }}" data-video-id="{{ produto.video_url.split('/')[-1] }}" style="max-width: 605px; min-width: 325px;">
-                <section><a target="_blank" href="{{ produto.video_url }}">Ver vídeo no TikTok</a></section>
-            </blockquote>
-            <script async src="https://www.tiktok.com/embed.js"></script>
-        </div>
+                <div class="flex justify-center bg-gray-50 p-2">
+                    <iframe 
+                        src="https://www.tiktok.com/embed/{{ produto.video_url.split('/')[-1] }}" 
+                        width="605" 
+                        height="500" 
+                        frameborder="0" 
+                        allowfullscreen 
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        style="border: none;">
+                    </iframe>
+                </div>
                 {% else %}
                     <!-- Player YouTube (ou outros iframes) -->
                     <div class="w-full h-64">
