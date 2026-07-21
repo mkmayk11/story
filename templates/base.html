@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loja Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- NOVO: CSS do AOS para Animação de Scroll -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
     <style>
         /* Ajuste para o carrossel rolável */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -13,7 +17,7 @@
         dialog[open] { animation: fadeIn 0.2s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); } 
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -85,6 +89,15 @@
                 }
             }
         }
+    </script>
+    
+    <!-- NOVO: Script de Inicialização do AOS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+            offset: 50
+        });
     </script>
 </body>
 </html>
