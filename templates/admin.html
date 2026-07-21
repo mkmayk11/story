@@ -17,7 +17,7 @@
     </a>
 </div>
 
-<!-- NOVO: Seção do Gráfico de Vendas -->
+<!-- Seção do Gráfico de Vendas -->
 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
     <h3 class="text-xl font-semibold mb-4">Resumo de Pedidos por Status</h3>
     <div class="w-full max-w-md mx-auto">
@@ -27,7 +27,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     
-    <!-- Gerenciamento de Usuários (AGORA COM TODOS OS DADOS DE CADASTRO) -->
+    <!-- Gerenciamento de Usuários -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 overflow-x-auto">
         <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários e Dados de Cadastro</h3>
         <table class="min-w-full text-left text-sm whitespace-nowrap">
@@ -64,7 +64,7 @@
         </table>
     </div>
 
-    <!-- Gerenciamento de Produtos (NOVO) -->
+    <!-- Gerenciamento de Produtos -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos (Exclusão)</h3>
         <ul class="space-y-4">
@@ -109,7 +109,6 @@
                             <p class="font-bold mb-1">Dados do Cliente e Entrega:</p>
                             <p><strong>Nome:</strong> {{ pedido.user.nome_completo }} (@{{ pedido.user.username }})</p>
                             <p><strong>ID do Pedido:</strong> #{{ pedido.id }}</p>
-                            <!-- TAMANHO ADICIONADO ABAIXO -->
                             <p><strong>Tamanho:</strong> {{ pedido.tamanho if pedido.tamanho else 'N/A' }}</p>
                             <p><strong>Telefone:</strong> {{ pedido.user.telefone }}</p>
                             <p><strong>Endereço:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
@@ -117,14 +116,22 @@
                     </div>
                 </div>
 
-                <!-- Botões de Alteração de Status -->
+                <!-- Botões de Alteração de Status (CORRIGIDO) -->
                 <div class="flex flex-wrap gap-2 text-[10px] mt-4 pt-3 border-t items-center">
                     <span class="mr-2 text-gray-400 font-bold uppercase">Mudar Status:</span>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=1) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">1</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=2) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">2</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=3) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">3</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=4) }}" class="border border-gray-300 px-2 py-1 rounded hover:bg-gray-200">4</a>
-                    <a href="{{ url_for('update_order', order_id=pedido.id, new_status=5) }}" class="border px-2 py-1 rounded hover:bg-gray-800 bg-black text-white">5</a>
+                    
+                    <!-- Lógica condicional: se o status_num for igual ao status do pedido, pinta de preto -->
+                    {% for status_num in range(1, 6) %}
+                        <a href="{{ url_for('update_order', order_id=pedido.id, new_status=status_num) }}" 
+                           class="border px-2 py-1 rounded transition-colors 
+                           {% if pedido.status == status_num %}
+                               bg-black text-white border-black hover:bg-gray-800
+                           {% else %}
+                               border-gray-300 text-gray-800 hover:bg-gray-200
+                           {% endif %}">
+                            {{ status_num }}
+                        </a>
+                    {% endfor %}
                     
                     <!-- BOTÃO DE CANCELAMENTO -->
                     <a href="{{ url_for('update_order', order_id=pedido.id, new_status=6) }}" class="border border-red-500 text-red-500 px-2 py-1 rounded hover:bg-red-500 hover:text-white ml-auto font-bold uppercase">Cancelar Compra</a>
@@ -137,7 +144,7 @@
     </div>
 </div>
 
-<!-- Importação do Chart.js NOVO -->
+<!-- Importação do Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- LÓGICA DO AUTO REFRESH E GRÁFICO -->
@@ -189,7 +196,7 @@
             }
         });
 
-        // --- LÓGICA DO AUTO REFRESH (Original Mantida) ---
+        // --- LÓGICA DO AUTO REFRESH ---
         const toggleBtn = document.getElementById("autoRefreshToggle");
         let refreshTimer;
         let isRefreshOn = localStorage.getItem("autoRefreshAdmin") === "true";
