@@ -17,6 +17,14 @@
     </a>
 </div>
 
+<!-- NOVO: Seção do Gráfico de Vendas -->
+<div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+    <h3 class="text-xl font-semibold mb-4">Resumo de Pedidos por Status</h3>
+    <div class="w-full max-w-md mx-auto">
+        <canvas id="graficoStatus"></canvas>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     
     <!-- Gerenciamento de Usuários (AGORA COM TODOS OS DADOS DE CADASTRO) -->
@@ -129,18 +137,65 @@
     </div>
 </div>
 
-<!-- LÓGICA DO AUTO REFRESH -->
+<!-- Importação do Chart.js NOVO -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- LÓGICA DO AUTO REFRESH E GRÁFICO -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // --- LÓGICA DO GRÁFICO DE VENDAS ---
+        const contagemStatus = {
+            "Processando seu pagamento": 0,
+            "Pagamento feito": 0,
+            "Pedido em preparação": 0,
+            "Pedido a caminho": 0,
+            "Pedido entregue": 0,
+            "Compra cancelada": 0
+        };
+
+        // Jinja injeta os dados do banco
+        {% for pedido in pedidos %}
+            contagemStatus["{{ status_map[pedido.status] }}"]++;
+        {% endfor %}
+
+        const ctx = document.getElementById('graficoStatus').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(contagemStatus),
+                datasets: [{
+                    label: 'Quantidade de Pedidos',
+                    data: Object.values(contagemStatus),
+                    backgroundColor: [
+                        '#f59e0b', // Laranja
+                        '#3b82f6', // Azul
+                        '#8b5cf6', // Roxo
+                        '#06b6d4', // Ciano
+                        '#22c55e', // Verde
+                        '#ef4444'  // Vermelho
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { family: 'sans-serif' } }
+                    }
+                }
+            }
+        });
+
+        // --- LÓGICA DO AUTO REFRESH (Original Mantida) ---
         const toggleBtn = document.getElementById("autoRefreshToggle");
         let refreshTimer;
-
-        // Checa se o admin já havia deixado o botão ligado antes da página carregar
         let isRefreshOn = localStorage.getItem("autoRefreshAdmin") === "true";
 
         function applyState() {
             if (isRefreshOn) {
-                // Modo Ligado: Botão Verde e agenda o reload para 40s (40000ms)
                 toggleBtn.classList.remove("bg-red-600", "hover:bg-red-700");
                 toggleBtn.classList.add("bg-green-600", "hover:bg-green-700");
                 toggleBtn.innerText = "Auto Refresh: LIGADO (40s)";
@@ -149,7 +204,6 @@
                     window.location.reload();
                 }, 40000);
             } else {
-                // Modo Desligado: Botão Vermelho e cancela qualquer timer
                 toggleBtn.classList.remove("bg-green-600", "hover:bg-green-700");
                 toggleBtn.classList.add("bg-red-600", "hover:bg-red-700");
                 toggleBtn.innerText = "Auto Refresh: DESLIGADO";
@@ -158,15 +212,13 @@
             }
         }
 
-        // Quando o admin clica no botão
         toggleBtn.addEventListener("click", function() {
-            isRefreshOn = !isRefreshOn; // Alterna o status
-            localStorage.setItem("autoRefreshAdmin", isRefreshOn); // Salva o status na memória do navegador
-            clearTimeout(refreshTimer); // Limpa o timer atual por precaução
-            applyState(); // Roda a função para trocar as cores e ativar/desativar
+            isRefreshOn = !isRefreshOn; 
+            localStorage.setItem("autoRefreshAdmin", isRefreshOn); 
+            clearTimeout(refreshTimer); 
+            applyState(); 
         });
 
-        // Roda a checagem pela primeira vez assim que a tela abre
         applyState();
     });
 </script>
