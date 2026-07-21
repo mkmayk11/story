@@ -15,20 +15,20 @@
 
             <!-- Vídeo do Produto (Exibido apenas se houver link) -->
             {% if produto.video_url %}
-<div class="w-full rounded-lg overflow-hidden border">
-    {% if 'tiktok.com' in produto.video_url %}
-        <!-- Player TikTok -->
-                <div class="flex justify-center bg-gray-50 p-2">
-                    <iframe 
-                        src="https://www.tiktok.com/embed/{{ produto.video_url.split('/')[-1] }}" 
-                        width="605" 
-                        height="500" 
-                        frameborder="0" 
-                        allowfullscreen 
-                        allow="autoplay; encrypted-media; picture-in-picture"
-                        style="border: none;">
-                    </iframe>
-                </div>
+            <div class="w-full rounded-lg overflow-hidden border">
+                {% if 'tiktok.com' in produto.video_url %}
+                    <!-- Player TikTok -->
+                    <div class="flex justify-center bg-gray-50 p-2">
+                        <iframe 
+                            src="https://www.tiktok.com/embed/{{ produto.video_url.split('/')[-1] }}" 
+                            width="605" 
+                            height="500" 
+                            frameborder="0" 
+                            allowfullscreen 
+                            allow="autoplay; encrypted-media; picture-in-picture"
+                            style="border: none;">
+                        </iframe>
+                    </div>
                 {% else %}
                     <!-- Player YouTube (ou outros iframes) -->
                     <div class="w-full h-64">
@@ -76,16 +76,35 @@
                         </div>
                     {% endif %}
                     
-                    <button type="submit" class="w-full text-center bg-black text-white py-4 rounded-lg font-bold uppercase hover:bg-gray-800 transition-colors">
-                        Comprar Agora
+                    <!-- NOVO: Botão com spinner de carregamento e efeitos de UI -->
+                    <button type="submit" id="btn-comprar" class="w-full flex justify-center items-center bg-black text-white py-4 rounded-lg font-bold uppercase transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 shadow-md hover:shadow-xl">
+                        <span id="btn-text">Comprar Agora</span>
+                        <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </button>
                 </form>
             {% else %}
-                <a href="{{ url_for('login') }}" class="w-full text-center bg-gray-200 py-4 rounded-lg uppercase hover:bg-gray-300 transition-colors">
+                <a href="{{ url_for('login') }}" class="w-full text-center block bg-gray-200 py-4 rounded-lg uppercase hover:bg-gray-300 transition-colors">
                     Faça login para comprar
                 </a>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- NOVO: Script de carregamento (Spinner) -->
+<script>
+    const form = document.querySelector('form');
+    if(form) {
+        form.addEventListener('submit', function() {
+            const btn = document.getElementById('btn-comprar');
+            document.getElementById('btn-text').classList.add('hidden');
+            document.getElementById('btn-spinner').classList.remove('hidden');
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.classList.remove('hover:-translate-y-1', 'hover:scale-105');
+        });
+    }
+</script>
 {% endblock %}
