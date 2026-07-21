@@ -8,7 +8,8 @@
     <!-- Filtra apenas os produtos que possuem destaque == True -->
     {% for produto in produtos if produto.destaque == True %}
     
-    <div class="min-w-[300px] bg-white rounded-xl shadow-sm hover:shadow-xl transition-shadow duration-300 snap-center overflow-hidden border border-gray-100 flex flex-col">
+    <!-- NOVO: Adicionado data-aos e classes de transição (transform hover:-translate-y-2) -->
+    <div data-aos="fade-up" data-aos-duration="600" class="min-w-[300px] bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 snap-center overflow-hidden border border-gray-100 flex flex-col">
         
         <!-- GALERIA DE IMAGENS -->
         {% set lista_de_fotos = produto.imagens.split(',') if produto.imagens else [] %}
@@ -37,7 +38,6 @@
                 </button>
 
                 {% if current_user.is_authenticated %}
-                    <!-- No lugar do antigo <a> com url_for('comprar', ...) -->
                     <a href="{{ url_for('detalhe_produto', id=produto.id) }}" 
                     class="flex-1 text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider font-bold">
                         Comprar
