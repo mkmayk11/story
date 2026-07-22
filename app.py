@@ -149,6 +149,20 @@ def comprar(product_id):
         
     return redirect(url_for('minhas_compras'))
 
+
+@app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    if not current_user.is_admin:
+        return "Acesso Negado", 403
+        
+    pedido = Order.query.get_or_404(order_id)
+    db.session.delete(pedido)
+    db.session.commit()
+    
+    flash('Pedido excluído com sucesso!')
+    return redirect(url_for('admin_panel'))
+
 @app.route('/minhas_compras')
 @login_required
 def minhas_compras():
