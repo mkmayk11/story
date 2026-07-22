@@ -3,31 +3,45 @@
 <h2 class="text-3xl font-light mb-8">Categorias</h2>
 
 {% for cat in ['Roupas Femininas', 'Roupas Masculinas', 'Eletrodomésticos', 'Melhorias para Casa', 'Ferramentas', 'Cozinha', 'Banheiro', 'Quarto', 'Decoração', 'Eletrônicos', 'Calçados', 'Adornos', 'Diversos'] %}
-<section class="mb-10">
-    <h3 class="text-xl font-bold border-b mb-4">{{ cat }}</h3>
+<section class="mb-10" data-aos="fade-up">
+    <h3 class="text-xl font-bold border-b pb-2 mb-4 text-gray-800">{{ cat }}</h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         {% for p in produtos if p.categoria == cat %}
-            <div class="border p-2 rounded hover:shadow-lg transition-shadow">
-                <!-- Link para a página de detalhes na imagem -->
-                <a href="{{ url_for('detalhe_produto', id=p.id) }}" class="block">
-                    <img src="{{ p.imagens.split(',')[0] }}" class="h-32 w-full object-cover rounded">
-                </a>
-                
-                <!-- Link para a página de detalhes no nome -->
-                <a href="{{ url_for('detalhe_produto', id=p.id) }}" class="block mt-2">
-                    <p class="text-sm font-bold hover:underline">{{ p.nome }}</p>
-                </a>
-                
-                <p class="text-green-700 text-xs mb-2">R$ {{ "%.2f"|format(p.preco) }}</p>
+            {% set primeira_foto = p.imagens.split(',')[0].strip() if p.imagens else '' %}
+            <div class="group border border-gray-100 bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between">
+                <div>
+                    <!-- Link para a página de detalhes na imagem -->
+                    <a href="{{ url_for('detalhe_produto', id=p.id) }}" class="block overflow-hidden rounded-lg relative mb-3 bg-gray-50">
+                        {% if p.preco_antigo and p.preco_antigo > p.preco %}
+                            <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full z-10 shadow">
+                                Oferta
+                            </span>
+                        {% endif %}
+                        <img src="{{ primeira_foto }}" class="h-36 w-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300">
+                    </a>
+                    
+                    <!-- Link para a página de detalhes no nome -->
+                    <a href="{{ url_for('detalhe_produto', id=p.id) }}" class="block">
+                        <p class="text-sm font-bold text-gray-800 hover:underline line-clamp-1 mb-1">{{ p.nome }}</p>
+                    </a>
+                    
+                    <!-- Área de Preços (Exibe Preço Antigo Riscado + Preço Atual) -->
+                    <div class="mb-3">
+                        {% if p.preco_antigo %}
+                            <span class="line-through text-red-500 text-xs mr-1 font-medium">R$ {{ "%.2f"|format(p.preco_antigo) }}</span>
+                        {% endif %}
+                        <p class="text-green-700 text-sm font-bold inline-block">R$ {{ "%.2f"|format(p.preco) }}</p>
+                    </div>
+                </div>
                 
                 <!-- Botão de acesso direto aos detalhes -->
                 <a href="{{ url_for('detalhe_produto', id=p.id) }}" 
-                   class="block w-full text-center bg-black text-white py-1 rounded text-xs uppercase hover:bg-gray-800">
+                   class="block w-full text-center bg-black text-white py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-800 transition-colors mt-auto">
                     Ver Detalhes
                 </a>
             </div>
         {% else %}
-            <p class="text-gray-400 text-sm italic col-span-full">Nenhum produto nesta categoria.</p>
+            <p class="text-gray-400 text-sm italic col-span-full py-2">Nenhum produto nesta categoria.</p>
         {% endfor %}
     </div>
 </section>
