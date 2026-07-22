@@ -1,5 +1,15 @@
 {% extends "base.html" %}
+
 {% block content %}
+<!-- Metatags específicas para o WhatsApp puxar a foto e o título nesta página -->
+<head>
+    <meta property="og:title" content="{{ produto.nome }} - Story - SP">
+    <meta property="og:description" content="{{ produto.descricao[:100] }}">
+    <meta property="og:image" content="{{ produto.imagens.split(',')[0].strip() }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+</head>
+
 <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border">
     <div class="grid md:grid-cols-2 gap-8">
         
