@@ -54,6 +54,7 @@ class Product(db.Model):
     nome = db.Column(db.String(100))
     descricao = db.Column(db.Text)
     preco = db.Column(db.Float) 
+    custo = db.Column(db.Float, nullable=True)
     imagens = db.Column(db.Text) 
     link_pagamento = db.Column(db.String(300)) # Atualizado para link_pagamento
     orders = db.relationship('Order', backref='product', lazy=True) 
@@ -258,11 +259,15 @@ def add_product():
         
         preco = float(request.form['preco'].replace(',', '.')) 
         
+        # --- CAPTURA O VALOR DE CUSTO ---
+        custo_str = request.form.get('custo', '').strip()
+        custo = float(custo_str.replace(',', '.')) if custo_str else None
+        
         preco_antigo_str = request.form.get('preco_antigo', '').strip()
         preco_antigo = float(preco_antigo_str.replace(',', '.')) if preco_antigo_str else None
 
         video_url = request.form.get('video_url', '')
-        link_pagamento = request.form.get('link_pagamento', '') # <- CORRIGIDO: Captura correta do link do PagBank
+        link_pagamento = request.form.get('link_pagamento', '') 
         
         categoria = request.form.get('categoria')
         destaque = True if request.form.get('destaque') == 'on' else False
@@ -282,11 +287,12 @@ def add_product():
             nome=nome, 
             descricao=descricao, 
             preco=preco, 
+            custo=custo, # <-- SALVA NO BANCO
             preco_antigo=preco_antigo,  
             imagens=imagens_str, 
             video_url=video_url,
             categoria=categoria,
-            link_pagamento=link_pagamento, # <- CORRIGIDO: Passado corretamente para o banco
+            link_pagamento=link_pagamento,
             destaque=destaque
         )
         
@@ -295,7 +301,9 @@ def add_product():
 
         return redirect(url_for('admin_panel'))
 
-    return render_template('add_product.html')
+    # Passa todos os produtos da loja caso queira exibi-los em uma lista/select na tela
+    produtos_existentes = Product.query.all()
+    return render_template('add_product.html', produtos=produtos_existentes)
 
 if __name__ == '__main__':
     with app.app_context():
