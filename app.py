@@ -56,6 +56,7 @@ class Product(db.Model):
     categoria = db.Column(db.String(50), nullable=False) # Adicione isso
     destaque = db.Column(db.Boolean, default=False)
     video_url = db.Column(db.String(500))
+    preco_antigo = db.Column(db.Float, nullable=True)
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -176,6 +177,34 @@ def update_order(order_id, new_status):
         db.session.commit()
     return redirect(url_for('admin_panel'))
 
+@app.route('/edit_product/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def edit_product(product_id):
+    if not current_user.is_admin:
+        return redirect(url_for('index'))
+        
+    produto = Product.query.get_or_404(product_id)
+    
+    if request.method == 'POST':
+        produto.nome = request.form['nome']
+        produto.preco = float(request.form['preco'])
+        
+        preco_antigo_str = request.form.get('preco_antigo')
+        produto.preco_antigo = float(preco_antigo_str) if preco_antigo_str else None
+        
+        produto.categoria = request.form['categoria']
+        produto.descricao = request.form['descricao']
+        produto.imagens = request.form['imagens']
+        produto.video_url = request.form.get('video_url', '')
+        produto.destaque = True if request.form.get('destaque') else False
+        
+        db.session.commit()
+        flash('Produto atualizado com sucesso!', 'success')
+        return redirect(url_for('admin_panel'))
+        
+    return render_template('edit_product.html', produto=produto)
+
+
 # NOVO: Rota para excluir produtos
 @app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
 @login_required
@@ -204,10 +233,16 @@ def add_product():
     if request.method == 'POST':
         nome = request.form['nome']
         descricao = request.form['descricao']
+        
+        # Preço atual obrigatório
         preco = float(request.form['preco'].replace(',', '.')) 
+        
+        # NOVO: Captura do preço antigo (opcional, se estiver vazio vira None)
+        preco_antigo_str = request.form.get('preco_antigo', '').strip()
+        preco_antigo = float(preco_antigo_str.replace(',', '.')) if preco_antigo_str else None
+
         video_url = request.form.get('video_url', '')
         
-        # NOVOS CAMPOS
         categoria = request.form.get('categoria')
         destaque = True if request.form.get('destaque') == 'on' else False
 
@@ -216,20 +251,20 @@ def add_product():
 
         for foto in fotos:
             if foto.filename != '':
-                # NOVO: Upload da imagem direto para nuvem com Cloudinary
                 upload_result = cloudinary.uploader.upload(foto)
                 url_da_imagem = upload_result['secure_url']
                 caminhos_fotos.append(url_da_imagem)
 
         imagens_str = ",".join(caminhos_fotos)
 
-        # OBJETO ATUALIZADO COM CATEGORIA E DESTAQUE
+        # OBJETO ATUALIZADO COM O PREÇO ANTIGO
         novo_produto = Product(
             nome=nome, 
             descricao=descricao, 
             preco=preco, 
+            preco_antigo=preco_antigo,  # <- Adicionado aqui
             imagens=imagens_str, 
-            video_url=video_url, # Mude aqui também
+            video_url=video_url,
             categoria=categoria,
             destaque=destaque
         )
