@@ -11,9 +11,12 @@
     </button>
 </div>
     
-<div class="mb-8">
+<div class="mb-8 flex flex-wrap gap-4">
     <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
         + Cadastrar Novo Produto
+    </a>
+    <a href="{{ url_for('gerenciar_custos') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-blue-700">
+        Gerenciar Custos de Produtos
     </a>
 </div>
 
