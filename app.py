@@ -5,11 +5,16 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
+# --- CORREÇÃO DE PROXY PARA O RENDER (FORÇA O HTTPS) ---
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 # --- NOVO IMPORT DO CLOUDINARY ---
 import cloudinary
 import cloudinary.uploader
 
-app = Flask(__name__) 
+app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 app.config['SECRET_KEY'] = 'super_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
@@ -148,7 +153,6 @@ def comprar(product_id):
         return render_template('pagamento_intermediario.html', link=link_final)
         
     return redirect(url_for('minhas_compras'))
-
 
 @app.route('/admin/delete_order/<int:order_id>', methods=['POST'])
 @login_required
