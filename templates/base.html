@@ -6,6 +6,15 @@
     <title>Story - SP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Metatags Dinâmicas para Redes Sociais / WhatsApp -->
+    {% if produto %}
+        <meta property="og:title" content="{{ produto.nome }} - Story - SP">
+        <meta property="og:description" content="{{ produto.descricao[:100] }}">
+        <meta property="og:image" content="{{ produto.imagens.split(',')[0].strip() }}">
+        <meta property="og:url" content="{{ request.url }}">
+        <meta property="og:type" content="website">
+    {% endif %}
+    
     <!-- CSS do AOS para Animação de Scroll -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
