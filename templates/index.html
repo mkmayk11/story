@@ -1,9 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<h2 class="text-3xl font-light mb-8 border-b pb-2">Lançamentos</h2>
+<div class="flex justify-between items-center mb-8 border-b pb-2">
+    <h2 class="text-3xl font-light">Lançamentos</h2>
+    
+    <!-- Botões de Navegação Lateral (Para Computador) -->
+    <div class="hidden md:flex gap-2">
+        <button onclick="rolarCarrossel(-1)" class="bg-gray-200 hover:bg-black hover:text-white text-black p-2 rounded-full transition-colors shadow-sm" title="Anterior">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <button onclick="rolarCarrossel(1)" class="bg-gray-200 hover:bg-black hover:text-white text-black p-2 rounded-full transition-colors shadow-sm" title="Próximo">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </button>
+    </div>
+</div>
 
-<!-- Carrossel de Produtos -->
-<div class="flex overflow-x-auto gap-8 pb-8 no-scrollbar snap-x">
+<!-- Carrossel de Produtos com ID para o controle das setas -->
+<div id="carrosselDestaques" class="flex overflow-x-auto gap-8 pb-8 no-scrollbar snap-x scroll-smooth">
     
     <!-- Filtra apenas os produtos que possuem destaque == True -->
     {% for produto in produtos if produto.destaque == True %}
@@ -90,4 +102,16 @@
     {% endfor %}
 
 </div>
+
+<!-- Script para controlar as setas do carrossel no computador -->
+<script>
+    function rolarCarrossel(direcao) {
+        const container = document.getElementById('carrosselDestaques');
+        const larguraItem = 330; // Largura do card + espaçamento (gap)
+        container.scrollBy({
+            left: direcao * larguraItem,
+            behavior: 'smooth'
+        });
+    }
+</script>
 {% endblock %}
