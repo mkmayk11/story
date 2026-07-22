@@ -1,69 +1,68 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 mt-8 mb-8">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-light tracking-wide uppercase">Adicionar Novo Produto</h2>
-        <a href="{{ url_for('admin_panel') }}" class="text-sm text-gray-500 hover:text-black">Voltar</a>
+        <a href="{{ url_for('admin_panel') }}" class="text-sm text-gray-500 hover:text-black font-medium">Voltar ao Painel</a>
     </div>
     
-    <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="space-y-4">
+    <!-- ATENÇÃO: enctype="multipart/form-data" obrigatório para o upload de fotos funcionar na sua rota -->
+    <form method="POST" action="{{ url_for('add_product') }}" enctype="multipart/form-data" class="space-y-5">
         <div>
             <label class="block text-sm text-gray-600 mb-1">Nome do Produto</label>
-            <input type="text" name="nome" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+            <input type="text" name="nome" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black">
         </div>
         
+        <!-- SEÇÃO DE PREÇOS (COM PREÇO ANTIGO E PREÇO ATUAL) -->
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Preço (Ex: 199,90)</label>
-                <input type="text" name="preco" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+                <label class="block text-sm text-red-500 mb-1">Preço Antigo (Fictício/Riscado)</label>
+                <input type="text" name="preco_antigo" placeholder="Ex: 90,00" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
             </div>
             <div>
-                <label class="block text-sm text-gray-600 mb-1">Link de Pagamento (Checkout)</label>
-                <input type="url" name="link_externo" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black">
+                <label class="block text-sm font-bold text-green-700 mb-1">Preço Atual (Real)*</label>
+                <input type="text" name="preco" required placeholder="Ex: 59,90" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
-        </div>
-
-        <div>
-            <label class="block text-sm text-gray-600 mb-1">Link do Vídeo (TikTok ou YouTube)</label>
-            <input type="text" name="video_url" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black" placeholder="Cole o link aqui...">
-        </div>
-
-        <div>
-            <label class="block text-sm text-gray-600 mb-1">Descrição</label>
-            <textarea name="descricao" rows="3" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-black"></textarea>
         </div>
 
         <div>
             <label class="block text-sm text-gray-600 mb-1">Categoria</label>
-            <select name="categoria" class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black">
+            <select name="categoria" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black">
                 <option value="Roupas Femininas">Roupas Femininas</option>
                 <option value="Roupas Masculinas">Roupas Masculinas</option>
-                <option value="Eletrodomésticos">Eletrodomésticos</option>
-                <option value="Melhorias para Casa">Melhorias para Casa</option>
-                <option value="Ferramentas">Ferramentas</option>
-                <option value="Cozinha">Cozinha</option>
-                <option value="Banheiro">Banheiro</option>
-                <option value="Quarto">Quarto</option>
-                <option value="Decoração">Decoração</option>
-                <option value="Eletrônicos">Eletrônicos</option>
                 <option value="Calçados">Calçados</option>
-                <option value="Adornos">Adornos</option>
-                <option value="Diversos">Diversos</option>
+                <option value="Acessórios">Acessórios</option>
+                <option value="Outros">Outros</option>
             </select>
         </div>
 
-        <label class="flex items-center gap-2 mt-4 text-sm text-gray-600">
-            <input type="checkbox" name="destaque" class="w-4 h-4"> Marcar como Lançamento (Destaque na Home)
-        </label>
-
         <div>
-            <label class="block text-sm text-gray-600 mb-1">Fotos do Produto (Pode selecionar várias)</label>
-            <input type="file" name="fotos" multiple accept="image/*" required class="w-full border border-gray-300 rounded-lg px-4 py-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800">
+            <label class="block text-sm text-gray-600 mb-1">Descrição</label>
+            <textarea name="descricao" rows="4" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
         </div>
         
-        <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider mt-4">
-            Salvar Produto
-        </button>
+        <!-- CAMPO DE UPLOAD DE FOTOS (Compatível com request.files.getlist('fotos')) -->
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Fotos do Produto (Selecione uma ou mais)</label>
+            <input type="file" name="fotos" multiple required class="w-full border border-gray-300 rounded-lg p-2 bg-gray-50 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800">
+            <p class="text-xs text-gray-400 mt-1">As imagens serão enviadas automaticamente para a nuvem.</p>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Link do Vídeo do Produto (TikTok / YouTube - Opcional)</label>
+            <input type="text" name="video_url" placeholder="Cole o link do vídeo" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+        </div>
+        
+        <div class="flex items-center gap-2 pt-2">
+            <input type="checkbox" name="destaque" id="destaque" class="w-4 h-4 text-black border-gray-300 rounded focus:ring-black">
+            <label for="destaque" class="text-sm text-gray-700">Destacar produto na página inicial</label>
+        </div>
+        
+        <div class="pt-4">
+            <button type="submit" class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase text-sm tracking-wider font-bold shadow-sm">
+                Cadastrar Produto
+            </button>
+        </div>
     </form>
 </div>
 {% endblock %}
