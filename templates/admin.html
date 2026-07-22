@@ -17,17 +17,24 @@
     </a>
 </div>
 
-<!-- NOVO: Seção do Gráfico de Vendas -->
+<!-- Seção do Gráfico de Vendas -->
 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
     <h3 class="text-xl font-semibold mb-4">Resumo de Pedidos por Status</h3>
     <div class="w-full max-w-md mx-auto">
-        <canvas id="graficoStatus"></canvas>
+        <canvas id="graficoStatus" 
+            data-s1="{{ pedidos|selectattr('status', 'equalto', 1)|list|length }}"
+            data-s2="{{ pedidos|selectattr('status', 'equalto', 2)|list|length }}"
+            data-s3="{{ pedidos|selectattr('status', 'equalto', 3)|list|length }}"
+            data-s4="{{ pedidos|selectattr('status', 'equalto', 4)|list|length }}"
+            data-s5="{{ pedidos|selectattr('status', 'equalto', 5)|list|length }}"
+            data-s6="{{ pedidos|selectattr('status', 'equalto', 6)|list|length }}">
+        </canvas>
     </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     
-    <!-- Gerenciamento de Usuários (AGORA COM TODOS OS DADOS DE CADASTRO) -->
+    <!-- Gerenciamento de Usuários -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 overflow-x-auto">
         <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários e Dados de Cadastro</h3>
         <table class="min-w-full text-left text-sm whitespace-nowrap">
@@ -64,33 +71,53 @@
         </table>
     </div>
 
-    <!-- Gerenciamento de Produtos (NOVO COM EDIÇÃO E EXCLUSÃO) -->
+    <!-- Gerenciamento de Produtos e Custos -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos (Edição e Exclusão)</h3>
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos e Custos</h3>
         <ul class="space-y-4">
             {% for produto in produtos %}
-            <li class="p-4 border rounded-lg bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h4 class="font-bold text-sm">{{ produto.nome }}</h4>
-                    <p class="text-xs text-gray-500">
-                        <!-- PREÇO ANTIGO CORTADO AQUI -->
-                        {% if produto.preco_antigo %}
-                            <span class="line-through text-red-500 mr-1">R$ {{ "%.2f"|format(produto.preco_antigo) }}</span>
-                        {% endif %}
-                        <span class="text-green-700 font-bold">R$ {{ "%.2f"|format(produto.preco) if produto.preco else "0.00" }}</span>
-                    </p>
-                </div>
-                
-                <!-- Botões de Ação do Produto (Editar e Excluir) -->
-                <div class="flex gap-2 mt-2 sm:mt-0">
-                    <!-- BOTÃO EDITAR -->
-                    <a href="{{ url_for('edit_product', product_id=produto.id) }}" class="text-xs bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 font-bold uppercase tracking-wider text-center">Editar</a>
+            <li class="p-4 border rounded-lg bg-gray-50 flex flex-col gap-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h4 class="font-bold text-sm">{{ produto.nome }}</h4>
+                        <p class="text-xs text-gray-500">
+                            {% if produto.preco_antigo %}
+                                <span class="line-through text-red-500 mr-1">R$ {{ "%.2f"|format(produto.preco_antigo) }}</span>
+                            {% endif %}
+                            <span class="text-green-700 font-bold">Venda: R$ {{ "%.2f"|format(produto.preco) if produto.preco else "0.00" }}</span> | 
+                            <span class="text-blue-700 font-bold">Custo: R$ {{ "%.2f"|format(produto.custo) if produto.custo is not none else "0.00" }}</span>
+                        </p>
+                    </div>
                     
-                    <!-- BOTÃO EXCLUIR -->
-                    <form action="{{ url_for('delete_product', product_id=produto.id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir este produto? Todos os pedidos atrelados a ele também serão excluídos do sistema.');">
-                        <button type="submit" class="text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 font-bold uppercase tracking-wider">Excluir</button>
-                    </form>
+                    <!-- Botões de Ação do Produto -->
+                    <div class="flex gap-2 mt-2 sm:mt-0">
+                        <a href="{{ url_for('edit_product', product_id=produto.id) }}" class="text-xs bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 font-bold uppercase tracking-wider text-center">Editar</a>
+                        
+                        <form action="{{ url_for('delete_product', product_id=produto.id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir este produto? Todos os pedidos atrelados a ele também serão excluídos do sistema.');">
+                            <button type="submit" class="text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 font-bold uppercase tracking-wider">Excluir</button>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Formulário Rápido para Atualizar o Custo Direto no Admin -->
+                <form action="{{ url_for('edit_product', product_id=produto.id) }}" method="POST" class="flex gap-2 items-center pt-2 border-t">
+                    <input type="hidden" name="nome" value="{{ produto.nome }}">
+                    <input type="hidden" name="preco" value="{{ produto.preco }}">
+                    <input type="hidden" name="categoria" value="{{ produto.categoria }}">
+                    <input type="hidden" name="descricao" value="{{ produto.descricao }}">
+                    <input type="hidden" name="imagens" value="{{ produto.imagens }}">
+                    {% if produto.preco_antigo %}<input type="hidden" name="preco_antigo" value="{{ produto.preco_antigo }}">{% endif %}
+                    {% if produto.video_url %}<input type="hidden" name="video_url" value="{{ produto.video_url }}">{% endif %}
+                    {% if produto.link_pagamento %}<input type="hidden" name="link_pagamento" value="{{ produto.link_pagamento }}">{% endif %}
+                    {% if produto.destaque %}<input type="hidden" name="destaque" value="on">{% endif %}
+
+                    <div class="flex-grow">
+                        <input type="number" step="0.01" name="custo" value="{{ produto.custo if produto.custo is not none else '' }}" placeholder="Novo valor de custo" class="w-full text-xs border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="text-xs bg-black text-white px-3 py-1.5 rounded hover:bg-gray-800 font-bold uppercase tracking-wider">
+                        Salvar Custo
+                    </button>
+                </form>
             </li>
             {% else %}
             <p class="text-gray-400 text-sm italic">Nenhum produto cadastrado no momento.</p>
@@ -105,7 +132,6 @@
             {% for pedido in pedidos %}
             <li class="p-4 border rounded-lg bg-gray-50">
                 <div class="flex gap-4">
-                    <!-- Foto do Produto -->
                     {% set primeira_foto = pedido.product.imagens.split(',')[0] if pedido.product.imagens else '' %}
                     <div class="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
                         <img src="{{ primeira_foto }}" class="w-full h-full object-cover">
@@ -118,12 +144,10 @@
                         </div>
                         <p class="text-xs text-gray-500 line-clamp-1 mb-2">{{ pedido.product.descricao }}</p>
                         
-                        <!-- DADOS DE ENTREGA NA DESCRIÇÃO -->
                         <div class="text-[10px] text-gray-700 bg-white p-2 border rounded">
                             <p class="font-bold mb-1">Dados do Cliente e Entrega:</p>
                             <p><strong>Nome:</strong> {{ pedido.user.nome_completo }} (@{{ pedido.user.username }})</p>
                             <p><strong>ID do Pedido:</strong> #{{ pedido.id }}</p>
-                            <!-- TAMANHO ADICIONADO ABAIXO -->
                             <p><strong>Tamanho:</strong> {{ pedido.tamanho if pedido.tamanho else 'N/A' }}</p>
                             <p><strong>Telefone:</strong> {{ pedido.user.telefone }}</p>
                             <p><strong>Endereço:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
@@ -131,11 +155,9 @@
                     </div>
                 </div>
 
-                <!-- Botões de Alteração de Status (CORRIGIDO PARA MARCAR O STATUS ATUAL DE PRETO) -->
                 <div class="flex flex-wrap gap-2 text-[10px] mt-4 pt-3 border-t items-center">
                     <span class="mr-2 text-gray-400 font-bold uppercase">Mudar Status:</span>
                     
-                    <!-- Lógica condicional: se o status_num for igual ao status do pedido, pinta de preto -->
                     {% for status_num in range(1, 6) %}
                         <a href="{{ url_for('update_order', order_id=pedido.id, new_status=status_num) }}" 
                            class="border px-2 py-1 rounded transition-colors 
@@ -148,10 +170,8 @@
                         </a>
                     {% endfor %}
                     
-                    <!-- BOTÃO DE CANCELAMENTO -->
                     <a href="{{ url_for('update_order', order_id=pedido.id, new_status=6) }}" class="border border-red-500 text-red-500 px-2 py-1 rounded hover:bg-red-500 hover:text-white ml-auto font-bold uppercase">Cancelar Compra</a>
 
-                    <!-- BOTÃO DE EXCLUIR PEDIDO -->
                     <form action="{{ url_for('delete_order', order_id=pedido.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir permanentemente este pedido?');" class="inline-block m-0">
                         <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 font-bold uppercase transition-colors">Excluir</button>
                     </form>
@@ -164,28 +184,24 @@
     </div>
 </div>
 
-<!-- Importação do Chart.js NOVO -->
+<!-- Importação do Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- LÓGICA DO AUTO REFRESH E GRÁFICO -->
+<!-- LÓGICA DO AUTO REFRESH E GRÁFICO (Sem erros de linter) -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // --- LÓGICA DO GRÁFICO DE VENDAS ---
+        const canvasEl = document.getElementById('graficoStatus');
+        
         const contagemStatus = {
-            "Processando seu pagamento": 0,
-            "Pagamento feito": 0,
-            "Pedido em preparação": 0,
-            "Pedido a caminho": 0,
-            "Pedido entregue": 0,
-            "Compra cancelada": 0
+            "Processando seu pagamento": parseInt(canvasEl.dataset.s1 || 0),
+            "Pagamento feito": parseInt(canvasEl.dataset.s2 || 0),
+            "Pedido em preparação": parseInt(canvasEl.dataset.s3 || 0),
+            "Pedido a caminho": parseInt(canvasEl.dataset.s4 || 0),
+            "Pedido entregue": parseInt(canvasEl.dataset.s5 || 0),
+            "Compra cancelada": parseInt(canvasEl.dataset.s6 || 0)
         };
 
-        // Jinja injeta os dados do banco
-        {% for pedido in pedidos %}
-            contagemStatus["{{ status_map[pedido.status] }}"]++;
-        {% endfor %}
-
-        const ctx = document.getElementById('graficoStatus').getContext('2d');
+        const ctx = canvasEl.getContext('2d');
         new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -194,12 +210,12 @@
                     label: 'Quantidade de Pedidos',
                     data: Object.values(contagemStatus),
                     backgroundColor: [
-                        '#f59e0b', // Laranja
-                        '#3b82f6', // Azul
-                        '#8b5cf6', // Roxo
-                        '#06b6d4', // Ciano
-                        '#22c55e', // Verde
-                        '#ef4444'  // Vermelho
+                        '#f59e0b', 
+                        '#3b82f6', 
+                        '#8b5cf6', 
+                        '#06b6d4', 
+                        '#22c55e', 
+                        '#ef4444'  
                     ],
                     borderWidth: 0,
                     hoverOffset: 4
@@ -216,7 +232,6 @@
             }
         });
 
-        // --- LÓGICA DO AUTO REFRESH (Original Mantida) ---
         const toggleBtn = document.getElementById("autoRefreshToggle");
         let refreshTimer;
         let isRefreshOn = localStorage.getItem("autoRefreshAdmin") === "true";
