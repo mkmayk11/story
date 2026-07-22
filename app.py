@@ -134,14 +134,18 @@ def comprar(product_id):
     tamanho_escolhido = request.form.get('tamanho', '')
     produto = Product.query.get_or_404(product_id)
     
-    # Registra o pedido no painel administrativo
+    # Registra o pedido no banco de dados para o painel administrativo acompanhar
     novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1, tamanho=tamanho_escolhido)
     db.session.add(novo_pedido)
     db.session.commit()
     
-    # Renderiza o template correto de pagamento intermediário
+    # Se o produto tem um link de pagamento cadastrado, abre a página intermediária segura
     if produto.link_pagamento and produto.link_pagamento.strip() != "":
-        return render_template('pagamento_intermediario.html', link=produto.link_pagamento.strip())
+        link_final = produto.link_pagamento.strip()
+        # Garante que o link tenha o https:// para o navegador não bloquear
+        if not link_final.startswith('http://') and not link_final.startswith('https://'):
+            link_final = 'https://' + link_final
+        return render_template('pagamento_intermediario.html', link=link_final)
         
     return redirect(url_for('minhas_compras'))
 
