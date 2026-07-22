@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loja Premium</title>
+    <title>Story - SP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- NOVO: CSS do AOS para Animação de Scroll -->
+    <!-- CSS do AOS para Animação de Scroll -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <style>
@@ -27,11 +27,12 @@
             
             <!-- LOGO E NOME -->
             <a href="{{ url_for('index') }}" class="flex items-center gap-2">
-                <img src="https://res.cloudinary.com/hko3ntds/image/upload/v1784172528/pngegg_z9vgah.png" alt="Logo" class="h-10 w-auto">
-                <span class="text-2xl font-light tracking-widest">STORE</span>
+                <img src="https://res.cloudinary.com/hko3ntds/image/upload/v1784172528/pngegg_z9vgah.png" alt="Logo" class="h-8 w-auto">
+                <span class="text-xl font-light tracking-widest">STORY -SP</span>
             </a>
 
-            <div class="flex gap-4 items-center">
+            <!-- MENU PARA COMPUTADOR (Escondido no celular) -->
+            <div class="hidden md:flex gap-6 items-center">
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
                         <a href="{{ url_for('admin_panel') }}" class="text-sm uppercase tracking-wide hover:text-gray-300">Admin</a>
@@ -39,23 +40,41 @@
                     
                     <a href="{{ url_for('produtos') }}" class="text-sm uppercase tracking-wide hover:text-gray-300">Produtos</a>
                     <a href="{{ url_for('minhas_compras') }}" class="text-sm uppercase tracking-wide hover:text-gray-300">Minhas Compras</a>
-                    
-                    <!-- MENU DO PERFIL (TRÊS PONTINHOS) -->
+                {% endif %}
+            </div>
+
+            <!-- BOTÕES / MENU DIREITA -->
+            <div class="flex gap-3 items-center">
+                {% if current_user.is_authenticated %}
+                    <!-- MENU DO PERFIL / CELULAR (TRÊS PONTINHOS OU HAMBURGUER) -->
                     <div class="relative">
-                        <button onclick="document.getElementById('profileMenu').classList.toggle('hidden')" class="text-white hover:text-gray-300 font-bold text-xl px-2">
-                            ⋮
+                        <button onclick="document.getElementById('profileMenu').classList.toggle('hidden')" class="text-white hover:text-gray-300 font-bold text-xl px-2 py-1 flex items-center gap-1 bg-gray-900 rounded-lg border border-gray-800">
+                            <span class="text-xs uppercase tracking-wider hidden sm:inline">Menu</span>
+                            <span>⋮</span>
                         </button>
                         
-                        <!-- Dropdown -->
-                        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-xl py-2 z-50">
+                        <!-- Dropdown Ajustado para Celular e PC -->
+                        <div id="profileMenu" class="hidden absolute right-0 mt-2 w-56 bg-white text-black rounded-lg shadow-xl py-2 z-50 border border-gray-100">
+                            <div class="px-4 py-2 border-b text-xs text-gray-500 font-bold uppercase">Navegação</div>
+                            
+                            <!-- Links visíveis apenas no celular dentro do menu -->
+                            <div class="md:hidden">
+                                {% if current_user.is_admin %}
+                                    <a href="{{ url_for('admin_panel') }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm font-semibold">Painel Admin</a>
+                                {% endif %}
+                                <a href="{{ url_for('produtos') }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Produtos</a>
+                                <a href="{{ url_for('minhas_compras') }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Minhas Compras</a>
+                                <div class="border-t my-1"></div>
+                            </div>
+
                             <div class="px-4 py-2 border-b text-xs text-gray-500 font-bold uppercase">Meu Perfil</div>
-                            <button onclick="document.getElementById('modal-perfil').showModal()" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Ver Dados</button>
+                            <button onclick="document.getElementById('modal-perfil').showModal(); document.getElementById('profileMenu').classList.add('hidden');" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm">Ver Dados</button>
                             <a href="{{ url_for('logout') }}" class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-red-600 font-bold">Sair</a>
                         </div>
                     </div>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="text-sm uppercase tracking-wide hover:text-gray-300">Entrar</a>
-                    <a href="{{ url_for('register') }}" class="text-sm bg-white text-black px-4 py-1 rounded-full font-medium hover:bg-gray-200">Cadastrar</a>
+                    <a href="{{ url_for('login') }}" class="text-xs uppercase tracking-wide hover:text-gray-300 px-3 py-1.5">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="text-xs bg-white text-black px-3 py-1.5 rounded-full font-medium hover:bg-gray-200">Cadastrar</a>
                 {% endif %}
             </div>
         </div>
@@ -75,14 +94,14 @@
     </dialog>
     {% endif %}
 
-    <main class="max-w-7xl mx-auto p-4 mt-8">
+    <main class="max-w-7xl mx-auto p-4 mt-4">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Script para fechar menu ao clicar fora -->
     <script>
         window.onclick = function(event) {
-            if (!event.target.matches('button')) {
+            if (!event.target.matches('button') && !event.target.closest('button')) {
                 var dropdown = document.getElementById("profileMenu");
                 if (dropdown && !dropdown.classList.contains('hidden')) {
                     dropdown.classList.add('hidden');
@@ -91,7 +110,7 @@
         }
     </script>
     
-    <!-- NOVO: Script de Inicialização do AOS -->
+    <!-- Script de Inicialização do AOS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({
