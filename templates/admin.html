@@ -150,6 +150,11 @@
                     
                     <!-- BOTÃO DE CANCELAMENTO -->
                     <a href="{{ url_for('update_order', order_id=pedido.id, new_status=6) }}" class="border border-red-500 text-red-500 px-2 py-1 rounded hover:bg-red-500 hover:text-white ml-auto font-bold uppercase">Cancelar Compra</a>
+
+                    <!-- BOTÃO DE EXCLUIR PEDIDO -->
+                    <form action="{{ url_for('delete_order', order_id=pedido.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir permanentemente este pedido?');" class="inline-block m-0">
+                        <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 font-bold uppercase transition-colors">Excluir</button>
+                    </form>
                 </div>
             </li>
             {% else %}
