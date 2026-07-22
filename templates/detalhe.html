@@ -41,7 +41,7 @@
             
             <p class="text-[10px] text-gray-400">DEBUG: Categoria atual é [{{ produto.categoria }}]</p>
             
-            <!-- NOVO: Área de Preços -->
+            <!-- Área de Preços -->
             <div class="mb-4">
                 {% if produto.preco_antigo %}
                     <p class="text-xl font-bold text-red-500 line-through">De: R$ {{ "%.2f"|format(produto.preco_antigo) }}</p>
@@ -52,7 +52,7 @@
             <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
             
             {% if current_user.is_authenticated %}
-                <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full">
+                <form action="{{ url_for('comprar', product_id=produto.id) }}" method="POST" class="w-full" id="form-comprar">
                     
                     {% set cat = produto.categoria | string %}
                     
@@ -95,14 +95,17 @@
 </div>
 
 <script>
-    const form = document.querySelector('form');
+    const form = document.getElementById('form-comprar');
     if(form) {
-        form.addEventListener('submit', function() {
-            const btn = document.getElementById('btn-comprar');
-            document.getElementById('btn-text').classList.add('hidden');
-            document.getElementById('btn-spinner').classList.remove('hidden');
-            btn.classList.add('opacity-75', 'cursor-not-allowed');
-            btn.classList.remove('hover:-translate-y-1', 'hover:scale-105');
+        form.addEventListener('submit', function(event) {
+            // Verifica se o formulário passou nas validações HTML (como o 'required' do select)
+            if (form.checkValidity()) {
+                const btn = document.getElementById('btn-comprar');
+                document.getElementById('btn-text').classList.add('hidden');
+                document.getElementById('btn-spinner').classList.remove('hidden');
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+                btn.classList.remove('hover:-translate-y-1', 'hover:scale-105');
+            }
         });
     }
 </script>
