@@ -14,11 +14,10 @@ app.config['SECRET_KEY'] = 'super_secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 
 # --- CONFIGURAÇÃO DO CLOUDINARY ---
-# Substitua com suas credenciais reais criadas no site do Cloudinary
 cloudinary.config(
-  cloud_name = 'hko3ntds',
-  api_key = '419489122199773',
-  api_secret = 'zyjrwtQWqra7hsDxB3kHFK6aBD8'
+    cloud_name = 'hko3ntds',
+    api_key = '419489122199773',
+    api_secret = 'zyjrwtQWqra7hsDxB3kHFK6aBD8'
 )
 
 # Mantido por segurança, caso decida voltar atrás
@@ -51,9 +50,9 @@ class Product(db.Model):
     descricao = db.Column(db.Text)
     preco = db.Column(db.Float) 
     imagens = db.Column(db.Text) 
-    link_externo = db.Column(db.String(300))
+    link_pagamento = db.Column(db.String(300)) # Atualizado para link_pagamento
     orders = db.relationship('Order', backref='product', lazy=True) 
-    categoria = db.Column(db.String(50), nullable=False) # Adicione isso
+    categoria = db.Column(db.String(50), nullable=False)
     destaque = db.Column(db.Boolean, default=False)
     video_url = db.Column(db.String(500))
     preco_antigo = db.Column(db.Float, nullable=True)
@@ -72,7 +71,7 @@ STATUS_MAP = {
     3: "Pedido em preparação",
     4: "Pedido a caminho",
     5: "Pedido entregue",
-    6: "Compra cancelada" # NOVO: Status de cancelamento
+    6: "Compra cancelada"
 }
 
 @login_manager.user_loader
@@ -89,7 +88,6 @@ def index():
 def produtos():
     produtos = Product.query.all()
     return render_template('produtos.html', produtos=produtos)
-
 
 @app.route('/produto/<int:id>')
 def detalhe_produto(id):
@@ -135,10 +133,17 @@ def logout():
 def comprar(product_id):
     tamanho_escolhido = request.form.get('tamanho')
     produto = Product.query.get_or_404(product_id)
+    
+    # Registra o pedido no banco de dados para o painel administrativo acompanhar
     novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1, tamanho=tamanho_escolhido)
     db.session.add(novo_pedido)
     db.session.commit()
-    return render_template('pagamento_intermediario.html', link=produto.link_externo)
+    
+    # Redireciona o cliente diretamente para o link de pagamento do PagBank cadastrado no produto
+    if produto.link_pagamento:
+        return redirect(produto.link_pagamento)
+        
+    return redirect(url_for('minhas_compras'))
 
 @app.route('/minhas_compras')
 @login_required
@@ -154,7 +159,7 @@ def admin_panel():
         return "Acesso Negado", 403
     usuarios = User.query.all()
     pedidos = Order.query.all()
-    produtos = Product.query.all() # NOVO: Necessário para o admin excluir produtos
+    produtos = Product.query.all()
     return render_template('admin.html', usuarios=usuarios, pedidos=pedidos, produtos=produtos, status_map=STATUS_MAP)
 
 @app.route('/admin/toggle_role/<int:user_id>')
@@ -170,7 +175,6 @@ def toggle_role(user_id):
 @app.route('/admin/update_order/<int:order_id>/<int:new_status>')
 @login_required
 def update_order(order_id, new_status):
-    # NOVO: Limite atualizado para 6 para permitir cancelamento
     if current_user.is_admin and 1 <= new_status <= 6:
         order = Order.query.get(order_id)
         order.status = new_status
@@ -187,15 +191,16 @@ def edit_product(product_id):
     
     if request.method == 'POST':
         produto.nome = request.form['nome']
-        produto.preco = float(request.form['preco'])
+        produto.preco = float(request.form['preco'].replace(',', '.'))
         
-        preco_antigo_str = request.form.get('preco_antigo')
-        produto.preco_antigo = float(preco_antigo_str) if preco_antigo_str else None
+        preco_antigo_str = request.form.get('preco_antigo', '').strip()
+        produto.preco_antigo = float(preco_antigo_str.replace(',', '.')) if preco_antigo_str else None
         
         produto.categoria = request.form['categoria']
         produto.descricao = request.form['descricao']
         produto.imagens = request.form['imagens']
         produto.video_url = request.form.get('video_url', '')
+        produto.link_pagamento = request.form.get('link_pagamento', '') # Captura o link de pagamento na edição
         produto.destaque = True if request.form.get('destaque') else False
         
         db.session.commit()
@@ -204,8 +209,6 @@ def edit_product(product_id):
         
     return render_template('edit_product.html', produto=produto)
 
-
-# NOVO: Rota para excluir produtos
 @app.route('/admin/delete_product/<int:product_id>', methods=['POST'])
 @login_required
 def delete_product(product_id):
@@ -213,11 +216,8 @@ def delete_product(product_id):
         return "Acesso Negado", 403
         
     produto = Product.query.get_or_404(product_id)
-    
-    # Deleta os pedidos associados a este produto primeiro (evita erro no banco)
     Order.query.filter_by(product_id=produto.id).delete()
     
-    # Deleta o produto
     db.session.delete(produto)
     db.session.commit()
     
@@ -234,14 +234,13 @@ def add_product():
         nome = request.form['nome']
         descricao = request.form['descricao']
         
-        # Preço atual obrigatório
         preco = float(request.form['preco'].replace(',', '.')) 
         
-        # NOVO: Captura do preço antigo (opcional, se estiver vazio vira None)
         preco_antigo_str = request.form.get('preco_antigo', '').strip()
         preco_antigo = float(preco_antigo_str.replace(',', '.')) if preco_antigo_str else None
 
         video_url = request.form.get('video_url', '')
+        link_pagamento = request.form.get('link_pagamento', '') # <- CORRIGIDO: Captura correta do link do PagBank
         
         categoria = request.form.get('categoria')
         destaque = True if request.form.get('destaque') == 'on' else False
@@ -257,15 +256,15 @@ def add_product():
 
         imagens_str = ",".join(caminhos_fotos)
 
-        # OBJETO ATUALIZADO COM O PREÇO ANTIGO
         novo_produto = Product(
             nome=nome, 
             descricao=descricao, 
             preco=preco, 
-            preco_antigo=preco_antigo,  # <- Adicionado aqui
+            preco_antigo=preco_antigo,  
             imagens=imagens_str, 
             video_url=video_url,
             categoria=categoria,
+            link_pagamento=link_pagamento, # <- CORRIGIDO: Passado corretamente para o banco
             destaque=destaque
         )
         
