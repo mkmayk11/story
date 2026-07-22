@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 mt-8">
+    <h2 class="text-2xl font-light mb-6 text-center tracking-wide uppercase">Editar Produto</h2>
+    
+    <form method="POST" action="{{ url_for('edit_product', product_id=produto.id) }}" class="space-y-5">
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Nome do Produto</label>
+            <input type="text" name="nome" value="{{ produto.nome }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm text-gray-600 mb-1">Preço Antigo (Fictício/Riscado)</label>
+                <input type="number" step="0.01" name="preco_antigo" value="{{ produto.preco_antigo if produto.preco_antigo else '' }}" placeholder="Ex: 99.90" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-green-700 mb-1">Preço Atual (Real)*</label>
+                <input type="number" step="0.01" name="preco" value="{{ produto.preco }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Categoria</label>
+            <select name="categoria" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="Roupas Femininas" {% if produto.categoria == 'Roupas Femininas' %}selected{% endif %}>Roupas Femininas</option>
+                <option value="Roupas Masculinas" {% if produto.categoria == 'Roupas Masculinas' %}selected{% endif %}>Roupas Masculinas</option>
+                <option value="Calçados" {% if produto.categoria == 'Calçados' %}selected{% endif %}>Calçados</option>
+                <option value="Acessórios" {% if produto.categoria == 'Acessórios' %}selected{% endif %}>Acessórios</option>
+                <option value="Outros" {% if produto.categoria == 'Outros' %}selected{% endif %}>Outros</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Descrição</label>
+            <textarea name="descricao" required rows="4" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ produto.descricao }}</textarea>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Links das Imagens (Separados por vírgula)</label>
+            <textarea name="imagens" required rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">{{ produto.imagens }}</textarea>
+        </div>
+        
+        <div>
+            <label class="block text-sm text-gray-600 mb-1">Link do Vídeo (Opcional - YouTube/TikTok)</label>
+            <input type="text" name="video_url" value="{{ produto.video_url if produto.video_url else '' }}" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <input type="checkbox" name="destaque" id="destaque" {% if produto.destaque %}checked{% endif %} class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+            <label for="destaque" class="text-sm text-gray-600">Produto em Destaque (Aparece na página inicial)</label>
+        </div>
+        
+        <div class="flex gap-4">
+            <a href="{{ url_for('admin_panel') }}" class="w-1/3 text-center bg-gray-200 text-black py-3 rounded-lg hover:bg-gray-300 transition-colors uppercase text-sm tracking-wider font-bold">
+                Cancelar
+            </a>
+            <button type="submit" class="w-2/3 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors uppercase text-sm tracking-wider font-bold">
+                Salvar Alterações
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
