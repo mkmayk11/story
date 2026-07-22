@@ -131,17 +131,17 @@ def logout():
 @app.route('/comprar/<int:product_id>', methods=['POST'])
 @login_required
 def comprar(product_id):
-    tamanho_escolhido = request.form.get('tamanho')
+    tamanho_escolhido = request.form.get('tamanho', '')
     produto = Product.query.get_or_404(product_id)
     
-    # Registra o pedido no banco de dados para o painel administrativo acompanhar
+    # Registra o pedido no painel administrativo
     novo_pedido = Order(user_id=current_user.id, product_id=produto.id, status=1, tamanho=tamanho_escolhido)
     db.session.add(novo_pedido)
     db.session.commit()
     
-    # Redireciona o cliente diretamente para o link de pagamento do PagBank cadastrado no produto
-    if produto.link_pagamento:
-        return redirect(produto.link_pagamento)
+    # Se o produto tem um link de pagamento do PagBank cadastrado, envia para a página de redirecionamento seguro
+    if produto.link_pagamento and produto.link_pagamento.strip() != "":
+        return render_template('pagamento.html', link=produto.link_pagamento.strip())
         
     return redirect(url_for('minhas_compras'))
 
