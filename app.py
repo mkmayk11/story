@@ -139,9 +139,9 @@ def comprar(product_id):
     db.session.add(novo_pedido)
     db.session.commit()
     
-    # Redireciona diretamente para o link do PagBank cadastrado no produto
+    # Renderiza o template correto de pagamento intermediário
     if produto.link_pagamento and produto.link_pagamento.strip() != "":
-        return redirect(produto.link_pagamento.strip())
+        return render_template('pagamento_intermediario.html', link=produto.link_pagamento.strip())
         
     return redirect(url_for('minhas_compras'))
 
