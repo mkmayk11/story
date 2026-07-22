@@ -139,9 +139,9 @@ def comprar(product_id):
     db.session.add(novo_pedido)
     db.session.commit()
     
-    # Se o produto tem um link de pagamento do PagBank cadastrado, envia para a página de redirecionamento seguro
+    # Redireciona diretamente para o link do PagBank cadastrado no produto
     if produto.link_pagamento and produto.link_pagamento.strip() != "":
-        return render_template('pagamento.html', link=produto.link_pagamento.strip())
+        return redirect(produto.link_pagamento.strip())
         
     return redirect(url_for('minhas_compras'))
 
