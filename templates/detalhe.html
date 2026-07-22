@@ -5,7 +5,6 @@
         
         <!-- Galeria de Imagens e Vídeo -->
         <div class="flex flex-col gap-4">
-            <!-- Galeria de Imagens Rolável -->
             {% set fotos = produto.imagens.split(',') %}
             <div class="h-96 w-full overflow-x-auto flex snap-x snap-mandatory no-scrollbar rounded-lg border">
                 {% for foto in fotos if foto %}
@@ -13,11 +12,9 @@
                 {% endfor %}
             </div>
 
-            <!-- Vídeo do Produto (Exibido apenas se houver link) -->
             {% if produto.video_url %}
             <div class="w-full rounded-lg overflow-hidden border">
                 {% if 'tiktok.com' in produto.video_url %}
-                    <!-- Player TikTok -->
                     <div class="flex justify-center bg-gray-50 p-2">
                         <iframe 
                             src="https://www.tiktok.com/embed/{{ produto.video_url.split('/')[-1] }}" 
@@ -30,7 +27,6 @@
                         </iframe>
                     </div>
                 {% else %}
-                    <!-- Player YouTube (ou outros iframes) -->
                     <div class="w-full h-64">
                         <iframe class="w-full h-full" src="{{ produto.video_url }}" frameborder="0" allowfullscreen></iframe>
                     </div>
@@ -43,10 +39,16 @@
         <div class="flex flex-col">
             <h2 class="text-3xl font-bold mb-2">{{ produto.nome }}</h2>
             
-            <!-- DEBUG -->
             <p class="text-[10px] text-gray-400">DEBUG: Categoria atual é [{{ produto.categoria }}]</p>
             
-            <p class="text-2xl text-green-700 font-light mb-4">R$ {{ "%.2f"|format(produto.preco) }}</p>
+            <!-- NOVO: Área de Preços -->
+            <div class="mb-4">
+                {% if produto.preco_antigo %}
+                    <p class="text-xl font-bold text-red-500 line-through">De: R$ {{ "%.2f"|format(produto.preco_antigo) }}</p>
+                {% endif %}
+                <p class="text-3xl text-green-700 font-bold mt-1">Por: R$ {{ "%.2f"|format(produto.preco) }}</p>
+            </div>
+
             <p class="text-gray-600 mb-8">{{ produto.descricao }}</p>
             
             {% if current_user.is_authenticated %}
@@ -54,7 +56,6 @@
                     
                     {% set cat = produto.categoria | string %}
                     
-                    {# Exibe seletor apenas para as 3 categorias desejadas #}
                     {% if cat in ['Roupas Femininas', 'Roupas Masculinas', 'Calçados'] %}
                         <div class="mb-4">
                             <label class="block text-sm font-bold mb-2">
@@ -76,7 +77,6 @@
                         </div>
                     {% endif %}
                     
-                    <!-- NOVO: Botão com spinner de carregamento e efeitos de UI -->
                     <button type="submit" id="btn-comprar" class="w-full flex justify-center items-center bg-black text-white py-4 rounded-lg font-bold uppercase transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 shadow-md hover:shadow-xl">
                         <span id="btn-text">Comprar Agora</span>
                         <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -94,7 +94,6 @@
     </div>
 </div>
 
-<!-- NOVO: Script de carregamento (Spinner) -->
 <script>
     const form = document.querySelector('form');
     if(form) {
