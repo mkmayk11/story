@@ -17,7 +17,7 @@
     </a>
 </div>
 
-<!-- Seção do Gráfico de Vendas -->
+<!-- NOVO: Seção do Gráfico de Vendas -->
 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
     <h3 class="text-xl font-semibold mb-4">Resumo de Pedidos por Status</h3>
     <div class="w-full max-w-md mx-auto">
@@ -27,7 +27,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
     
-    <!-- Gerenciamento de Usuários -->
+    <!-- Gerenciamento de Usuários (AGORA COM TODOS OS DADOS DE CADASTRO) -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 md:col-span-2 overflow-x-auto">
         <h3 class="text-xl font-semibold mb-4">Gerenciar Usuários e Dados de Cadastro</h3>
         <table class="min-w-full text-left text-sm whitespace-nowrap">
@@ -64,19 +64,33 @@
         </table>
     </div>
 
-    <!-- Gerenciamento de Produtos -->
+    <!-- Gerenciamento de Produtos (NOVO COM EDIÇÃO E EXCLUSÃO) -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos (Exclusão)</h3>
+        <h3 class="text-xl font-semibold mb-4">Gerenciar Produtos (Edição e Exclusão)</h3>
         <ul class="space-y-4">
             {% for produto in produtos %}
-            <li class="p-4 border rounded-lg bg-gray-50 flex justify-between items-center">
+            <li class="p-4 border rounded-lg bg-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h4 class="font-bold text-sm">{{ produto.nome }}</h4>
-                    <p class="text-xs text-gray-500">R$ {{ "%.2f"|format(produto.preco) if produto.preco else "0.00" }}</p>
+                    <p class="text-xs text-gray-500">
+                        <!-- PREÇO ANTIGO CORTADO AQUI -->
+                        {% if produto.preco_antigo %}
+                            <span class="line-through text-red-500 mr-1">R$ {{ "%.2f"|format(produto.preco_antigo) }}</span>
+                        {% endif %}
+                        <span class="text-green-700 font-bold">R$ {{ "%.2f"|format(produto.preco) if produto.preco else "0.00" }}</span>
+                    </p>
                 </div>
-                <form action="{{ url_for('delete_product', product_id=produto.id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir este produto? Todos os pedidos atrelados a ele também serão excluídos do sistema.');">
-                    <button type="submit" class="text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 font-bold uppercase tracking-wider">Excluir</button>
-                </form>
+                
+                <!-- Botões de Ação do Produto (Editar e Excluir) -->
+                <div class="flex gap-2 mt-2 sm:mt-0">
+                    <!-- BOTÃO EDITAR -->
+                    <a href="{{ url_for('edit_product', product_id=produto.id) }}" class="text-xs bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 font-bold uppercase tracking-wider text-center">Editar</a>
+                    
+                    <!-- BOTÃO EXCLUIR -->
+                    <form action="{{ url_for('delete_product', product_id=produto.id) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir este produto? Todos os pedidos atrelados a ele também serão excluídos do sistema.');">
+                        <button type="submit" class="text-xs bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 font-bold uppercase tracking-wider">Excluir</button>
+                    </form>
+                </div>
             </li>
             {% else %}
             <p class="text-gray-400 text-sm italic">Nenhum produto cadastrado no momento.</p>
@@ -109,6 +123,7 @@
                             <p class="font-bold mb-1">Dados do Cliente e Entrega:</p>
                             <p><strong>Nome:</strong> {{ pedido.user.nome_completo }} (@{{ pedido.user.username }})</p>
                             <p><strong>ID do Pedido:</strong> #{{ pedido.id }}</p>
+                            <!-- TAMANHO ADICIONADO ABAIXO -->
                             <p><strong>Tamanho:</strong> {{ pedido.tamanho if pedido.tamanho else 'N/A' }}</p>
                             <p><strong>Telefone:</strong> {{ pedido.user.telefone }}</p>
                             <p><strong>Endereço:</strong> {{ pedido.user.endereco }}, {{ pedido.user.bairro }}</p>
@@ -116,7 +131,7 @@
                     </div>
                 </div>
 
-                <!-- Botões de Alteração de Status (CORRIGIDO) -->
+                <!-- Botões de Alteração de Status (CORRIGIDO PARA MARCAR O STATUS ATUAL DE PRETO) -->
                 <div class="flex flex-wrap gap-2 text-[10px] mt-4 pt-3 border-t items-center">
                     <span class="mr-2 text-gray-400 font-bold uppercase">Mudar Status:</span>
                     
@@ -144,7 +159,7 @@
     </div>
 </div>
 
-<!-- Importação do Chart.js -->
+<!-- Importação do Chart.js NOVO -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- LÓGICA DO AUTO REFRESH E GRÁFICO -->
@@ -196,7 +211,7 @@
             }
         });
 
-        // --- LÓGICA DO AUTO REFRESH ---
+        // --- LÓGICA DO AUTO REFRESH (Original Mantida) ---
         const toggleBtn = document.getElementById("autoRefreshToggle");
         let refreshTimer;
         let isRefreshOn = localStorage.getItem("autoRefreshAdmin") === "true";
