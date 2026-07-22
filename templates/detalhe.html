@@ -109,9 +109,9 @@
                 </a>
             {% endif %}
 
-            <!-- NOVO: Botão de Compartilhar no WhatsApp -->
+            <!-- Botão de Compartilhar no WhatsApp -->
             <div class="mt-3">
-                <a id="btn-compartilhar-wpp" href="#" target="_blank" 
+                <a id="btn-compartilhar-wpp" href="#" 
                    class="w-full flex justify-center items-center gap-2 bg-green-600 text-white py-3 rounded-lg font-bold uppercase text-sm hover:bg-green-700 transition-colors shadow-sm">
                     <!-- Ícone do WhatsApp (SVG) -->
                     <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -139,18 +139,59 @@
         });
     }
 
-    // Script para configurar o link dinâmico de compartilhamento do WhatsApp
+    // Script inteligente para compartilhamento nativo (incluindo imagem no celular) ou link web
     document.addEventListener("DOMContentLoaded", function() {
-        const urlAtual = encodeURIComponent(window.location.href);
-        const nomeProduto = "{{ produto.nome }}";
-        const textoMensagem = encodeURIComponent(`Olha que incrível esse produto que encontrei na Story - SP: *${nomeProduto}*! Confira os detalhes aqui: `);
-        
-        const linkWpp = `https://api.whatsapp.com/send?text=${textoMensagem}%20${urlAtual}`;
-        
         const botaoWpp = document.getElementById('btn-compartilhar-wpp');
+        
         if (botaoWpp) {
-            botaoWpp.href = linkWpp;
+            botaoWpp.addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                const urlAtual = window.location.href;
+                const nomeProduto = "{{ produto.nome }}";
+                const precoProduto = "R$ {{ '%.2f'|format(produto.preco) }}";
+                {% set fotos = produto.imagens.split(',') %}
+                const primeiraFoto = "{{ fotos[0].strip() if fotos else '' }}";
+
+                // Se o navegador suportar compartilhamento nativo (Excelente para Status do WhatsApp no celular)
+                if (navigator.share) {
+                    try {
+                        let arquivoParaCompartilhar = null;
+
+                        if (primeiraFoto) {
+                            try {
+                                const response = await fetch(primeiraFoto);
+                                const blob = await response.blob();
+                                arquivoParaCompartilhar = new File([blob], "produto.jpg", { type: blob.type });
+                            } catch (err) {
+                                console.log("Não foi possível carregar a imagem para anexo.");
+                            }
+                        }
+
+                        const shareData = {
+                            title: nomeProduto,
+                            text: `Olha que incrível esse produto na Story - SP: ${nomeProduto} por apenas ${precoProduto}! Confira:\n`,
+                            url: urlAtual
+                        };
+
+                        if (arquivoParaCompartilhar && navigator.canShare && navigator.canShare({ files: [arquivoParaCompartilhar] })) {
+                            shareData.files = [arquivoParaCompartilhar];
+                        }
+
+                        await navigator.share(shareData);
+                        return;
+                    } catch (error) {
+                        console.log('Compartilhamento cancelado ou não suportado:', error);
+                    }
+                }
+
+                // Fallback para computadores ou navegadores sem suporte nativo
+                const textoMensagem = encodeURIComponent(`Olha que incrível esse produto que encontrei na Story - SP: *${nomeProduto}* (${precoProduto})! Confira os detalhes aqui: `);
+                const linkWpp = `https://api.whatsapp.com/send?text=${textoMensagem}%20${encodeURIComponent(urlAtual)}`;
+                window.open(linkWpp, '_blank');
+            });
         }
     });
 </script>
 {% endblock %}
+```[cite: 5]
