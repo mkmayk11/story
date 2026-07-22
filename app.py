@@ -243,6 +243,30 @@ def delete_product(product_id):
     
     db.session.delete(produto)
     db.session.commit()
+
+
+@app.route('/admin/custos', methods=['GET', 'POST'])
+@login_required
+def gerenciar_custos():
+    if not current_user.is_admin:
+        return "Acesso Negado", 403
+
+    if request.method == 'POST':
+        produto_id = request.form.get('produto_id')
+        custo_str = request.form.get('custo', '').strip()
+        
+        if produto_id and custo_str:
+            custo = float(custo_str.replace(',', '.'))
+            produto = Product.query.get(produto_id)
+            if produto:
+                produto.custo = custo
+                db.session.commit()
+                
+        return redirect(url_for('gerenciar_custos'))
+
+    produtos = Product.query.all()
+    return render_template('gerenciar_custos.html', produtos=produtos)
+
     
     flash('Produto excluído com sucesso!')
     return redirect(url_for('admin_panel'))
