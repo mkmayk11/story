@@ -11,12 +11,20 @@
     </button>
 </div>
     
-<div class="mb-8 flex flex-wrap gap-4">
+<div class="mb-8 flex flex-wrap items-center gap-4">
     <a href="{{ url_for('add_product') }}" class="bg-black text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-gray-800">
         + Cadastrar Novo Produto
     </a>
     <a href="{{ url_for('gerenciar_custos') }}" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm uppercase tracking-wider hover:bg-blue-700">
         Gerenciar Custos de Produtos
+    </a>
+    
+    <!-- Novo Botão Laranja Pequeno com Efeitos -->
+    <a href="https://corp-4p0z.onrender.com/" target="_blank" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-xs uppercase font-bold tracking-wider transition-all duration-300 shadow-md hover:shadow-orange-500/50 hover:scale-105 active:scale-95 flex items-center gap-1.5">
+        <span>Acessar Sistema</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
     </a>
 </div>
 
